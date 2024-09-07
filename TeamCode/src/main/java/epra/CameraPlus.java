@@ -2,8 +2,6 @@ package epra;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -11,31 +9,20 @@ import java.util.List;
 public class CameraPlus {
     public static final boolean USE_WEBCAM = true;
     private List<AprilTagDetection> currentDetections;
-    private List<Recognition> currentRecognitions;
     private AprilTagProcessor aprilTag;
-    private TfodProcessor tfod;
     private VisionPortal visionPortal;
     private int targetID;
 
-    public CameraPlus (AprilTagProcessor aprilTag, TfodProcessor tfod, VisionPortal visionPortal) {
+    public CameraPlus (AprilTagProcessor aprilTag, VisionPortal visionPortal) {
         this.aprilTag = aprilTag;
         this.visionPortal = visionPortal;
-        this.tfod = tfod;
         currentDetections = new ArrayList<AprilTagDetection>();
-        currentRecognitions = new ArrayList<Recognition>();
         updateDetections();
-        updateRecognitions();
         startingTarget();
     }
     public void updateDetections () {
         if (aprilTag.getDetections().size() > 0) {
             currentDetections = aprilTag.getDetections();
-        }
-    }
-
-    public void updateRecognitions() {
-        if (tfod.getRecognitions().size() > 0) {
-            currentRecognitions = tfod.getRecognitions();
         }
     }
 
@@ -84,14 +71,5 @@ public class CameraPlus {
     public double getYaw(int index) {
         updateDetections();
         return (index < currentDetections.size()) ? (currentDetections.get(index).metadata != null) ? currentDetections.get(index).ftcPose.yaw : -1 : -1;
-    }
-
-    public String getLabel (int index) {
-        updateRecognitions();
-        return (index < currentRecognitions.size()) ?  currentRecognitions.get(index).getLabel() : "index too high";
-    }
-
-    public int numRecognitions () {
-        return currentRecognitions.size();
     }
 }
