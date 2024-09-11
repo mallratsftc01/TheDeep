@@ -26,6 +26,33 @@ public class Geometry {
         for (Angle a : angle) { degrees += a.getDegree(); }
         return new Angle(degrees % 360.0);
     }
+    /**@param angle An angle.
+     * @return The trigonometric sine value of an angle.*/
+    public static double sin(Angle angle) { return Math.sin(angle.getRadian()); }
+    /**@param angle An angle.
+     * @return The trigonometric cosine value of an angle.*/
+    public static double cos(Angle angle) { return Math.cos(angle.getRadian()); }
+    /**@param angle An angle.
+     * @return The trigonometric tangent value of an angle.*/
+    public static double tan(Angle angle) { return Math.tan(angle.getRadian()); }
+    /**@param angle An angle.
+     * @return The trigonometric cosecant value of an angle.*/
+    public static double csc(Angle angle) { return 1.0 / Math.sin(angle.getRadian()); }
+    /**@param angle An angle.
+     * @return The trigonometric secant value of an angle.*/
+    public static double sec(Angle angle) { return 1.0 / Math.cos(angle.getRadian()); }
+    /**@param angle An angle.
+     * @return The trigonometric cotangent value of an angle.*/
+    public static double cot(Angle angle) { return 1.0 / Math.tan(angle.getRadian()); }
+    /**@param a The value whose arc sine is to be returned.
+     * @return The arc sine of a value; the returned angle is in the range -pi/2 to pi/2.*/
+    public static Angle asin(double a) { return new Angle((float) Math.asin(a)); }
+    /**@param a The value whose arc cosine is to be returned.
+     * @return The arc cosine of a value; the returned angle is in the range 0.0 to pi.*/
+    public static Angle acos(double a) { return new Angle((float) Math.acos(a)); }
+    /**@param a The value whose arc tangent is to be returned.
+     * @return The arc tangent of a value; the returned angle is in the range -pi/2 to pi/2.*/
+    public static Angle atan(double a) { return new Angle((float) Math.atan(a)); }
 
     /**@param point1 First point.
      * @param point2 Second point.
