@@ -2,6 +2,7 @@ package epra.location;
 
 import epra.IMUExpanded;
 import epra.math.geometry.Angle;
+import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -21,7 +22,7 @@ public class Odometery {
     private Map<Orientation, Point> displacement = new HashMap<>();
     private Map<Orientation, Integer> pos = new HashMap<>();
     private Map<Orientation, Integer> delta = new HashMap<>();
-    private Angle deltaAngle = new Angle(0.0);
+    private Angle phi = new Angle(0.0);
 
     private IMUExpanded imu;
 
@@ -72,4 +73,46 @@ public class Odometery {
         }
     }
 
+    /**Updates the phi (delta theta) value using the encoders.
+     * @return The new phi value. */
+    public Angle phiEncoder() {
+        float l = (float) Math.abs(Geometry.subtract(displacement.get(Orientation.LEFT), displacement.get(Orientation.RIGHT)).x);
+        phi = new Angle((float) (delta.get(Orientation.LEFT) - delta.get(Orientation.RIGHT)) / l);
+        return phi;
+    }
+    /**Updates the phi (delta theta) value using the imu.
+     * @return The new phi value. */
+    public Angle phiIMU() {
+        phi = Geometry.subtract(imu.getYaw(), pose.angle);
+        return phi;
+    }
+    /**Finds the center displacement of the parallel encoders.*/
+    public double centerDisplacement() { return (delta.get(Orientation.LEFT) + delta.get(Orientation.RIGHT)) / 2.0; }
+    /**Finds the displacement of the perpendicular encoder.*/
+    public double perpendicularDisplacement() { return delta.get(Orientation.PERPENDICULAR) - (displacement.get(Orientation.PERPENDICULAR).y * phi.getRadian()); }
+
+    /**Estimates the new pose value.
+     * @return The new pose value.*/
+    public Pose estimatePose() {
+        updateDelta();
+        updatePos();
+        phiEncoder();
+        Point p0 = new Point(
+                centerDisplacement(),
+                perpendicularDisplacement()
+        );
+        Point p1 = new Point(
+                (p0.x * Geometry.cos(pose.angle)) - (p0.x * Geometry.sin(pose.angle)),
+                (p0.y * Geometry.sin(pose.angle)) + (p0.y * Geometry.cos(pose.angle))
+        );
+        Point p2 = new Point(
+                (p1.x * (Geometry.sin(phi)) / phi.getRadian() + (p1.x * (Geometry.cos(phi) - 1.0) / phi.getRadian())),
+                (p1.y * (1.0 - Geometry.cos(phi)) / phi.getRadian()) + (p1.y * (Geometry.sin(phi)) / phi.getRadian())
+        );
+        pose = new Pose(
+                Geometry.add(pose.point, p2),
+                Geometry.add(pose.angle, phi)
+        );
+        return pose;
+    }
 }
