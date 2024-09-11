@@ -21,6 +21,7 @@ public class Odometery {
     private Map<Orientation, Point> displacement = new HashMap<>();
     private Map<Orientation, Integer> pos = new HashMap<>();
     private Map<Orientation, Integer> delta = new HashMap<>();
+    private Angle deltaAngle = new Angle(0.0);
 
     private IMUExpanded imu;
 
