@@ -4,6 +4,8 @@ import epra.IMUExpanded;
 import epra.math.geometry.Angle;
 import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
+import epra.math.geometry.Vector;
+import epra.math.statistics.RollingAverage;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -27,6 +29,11 @@ public class Odometery {
     private IMUExpanded imu;
 
     private Pose pose;
+
+    /**A buffer of the velocity (delta position) of the robot.*/
+    private RollingAverage velocityBuffer = new RollingAverage(25, RollingAverage.Bias.LINEAR);
+    /**A buffer of the angle of the velocity (phi) of the robot in radians.*/
+    private RollingAverage phiBuffer = new RollingAverage(25, RollingAverage.Bias.LINEAR);
 
     /**
      * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
@@ -113,6 +120,17 @@ public class Odometery {
                 Geometry.add(pose.point, p2),
                 Geometry.add(pose.angle, phi)
         );
+        velocityBuffer.addValue(Geometry.pythagorean(p2.x, p2.y));
+        phiBuffer.addValue(Geometry.add(phi, new Vector(p2)).getRadian());
         return pose;
+    }
+
+    /**Returns the velocity of the robot as a vector (encoder movement / update rate).*/
+    public Vector getVelocity() { return new Vector(velocityBuffer.getAverage(), new Angle((float) phiBuffer.getAverage())); }
+    /**Returns the acceleration of the robot as a vector (encoder movement / (update rate)²).*/
+    public Vector getAcceleration() {
+        RollingAverage vd = velocityBuffer.getDerivative();
+        RollingAverage ad = phiBuffer.getDerivative();
+        return new Vector(vd.getAverage(), new Angle((float) ad.getAverage()));
     }
 }

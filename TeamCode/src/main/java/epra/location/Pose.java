@@ -1,7 +1,9 @@
 package epra.location;
 
 import epra.math.geometry.Angle;
+import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
+import epra.math.geometry.Vector;
 
 /**
  * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.

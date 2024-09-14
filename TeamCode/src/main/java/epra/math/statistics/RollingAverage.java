@@ -1,4 +1,4 @@
-package epra.math;
+package epra.math.statistics;
 
 import java.util.ArrayList;
 
@@ -135,19 +135,11 @@ public class RollingAverage {
         return true;
     }
 
-    /**@param set A set of values.
-     * @return The average value of the set.*/
-    public double average(double[] set) {
-        double v = 0.0;
-        for (double d : set) { v += d; }
-        return v / (double) set.length;
-    }
-
     /**@return The weighted average value of the buffer.*/
     public double getAverage() {
         double[] set = new double[buffer.size()];
         for (int i = 0; i < set.length; i++) { set[i] = buffer.get(i) * biasType.use.bias(set.length, i); }
-        return average(set);
+        return Statistics.average(set);
     }
     /**@param value A value to add to the buffer.
      * @return The weighted average value of the buffer.*/
@@ -167,5 +159,39 @@ public class RollingAverage {
             }
         }
         return getAverage();
+    }
+    /**@param set Set of values to add to the buffer.
+     * @return The weighted average value of the buffer.*/
+    public double addValue(double[] set) {
+        for (double d : set) {
+            buffer.add(d);
+            while (buffer.size() > bufferSize) { buffer.remove(0); }
+            averageBuffer.add(getAverage());
+        }
+        if (buffer.size() > autoClearThreshold) {
+            if (switch (thresholdType) {
+                case NO_CHANGE -> noChangeThreshold((Double[]) buffer.toArray(), autoClearThreshold);
+                case NO_CHANGE_ZERO -> noChangeThreshold((Double[]) buffer.toArray(), autoClearThreshold, 0);
+                case NO_CHANGE_AVERAGE -> averageThreshold((Double[]) averageBuffer.toArray());
+                case NONE -> false;
+            } ) {
+                buffer.clear();
+            }
+        }
+        return getAverage();
+    }
+
+    /**@return The buffer as an array.*/
+    public double[] toArray() {
+        double[] a = new double[buffer.size()];
+        for (int i = 0; i < buffer.size(); i++) { a[i] = buffer.get(i); }
+        return a;
+    }
+
+    /**@return A new RollingAverage of the derivative of this RollingAverage.*/
+    public RollingAverage getDerivative() {
+        RollingAverage r = new RollingAverage(bufferSize, biasType, thresholdType, autoClearThreshold);
+        r.addValue(Statistics.differentiate(this.toArray()));
+        return r;
     }
 }
