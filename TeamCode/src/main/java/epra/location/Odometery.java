@@ -4,11 +4,14 @@ import epra.IMUExpanded;
 import epra.math.geometry.Angle;
 import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
+import epra.math.geometry.Quadrilateral;
 import epra.math.geometry.Vector;
 import epra.math.statistics.RollingAverage;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +20,8 @@ import java.util.Map;
  * <p></p>
  * Uses odometer encoders to determine robot pose.*/
 public class Odometery {
+
+    private double INCH_PER_TICK = (48.0 * Math.PI) / 50800.0;
 
     private enum Orientation { LEFT, RIGHT, PERPENDICULAR }
 
@@ -29,6 +34,8 @@ public class Odometery {
     private IMUExpanded imu;
 
     private Pose pose;
+
+    private long saveTime;
 
     /**A buffer of the velocity (delta position) of the robot.*/
     private RollingAverage velocityBuffer = new RollingAverage(25, RollingAverage.Bias.LINEAR);
@@ -64,6 +71,7 @@ public class Odometery {
         for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
             delta.put(entry.getKey(), entry.getValue().getCurrentPosition() - pos.get(entry.getKey()));
         }
+        saveTime = System.currentTimeMillis();
     }
 
     /**Updates the pos save of the encoders.*/
@@ -113,24 +121,59 @@ public class Odometery {
                 (p0.y * Geometry.sin(pose.angle)) + (p0.y * Geometry.cos(pose.angle))
         );
         Point p2 = new Point(
-                (p1.x * (Geometry.sin(phi)) / phi.getRadian() + (p1.x * (Geometry.cos(phi) - 1.0) / phi.getRadian())),
-                (p1.y * (1.0 - Geometry.cos(phi)) / phi.getRadian()) + (p1.y * (Geometry.sin(phi)) / phi.getRadian())
+                (p1.x * (Geometry.sin(phi)) / phi.getRadian() + (p1.x * (Geometry.cos(phi) - 1.0) / phi.getRadian())) * INCH_PER_TICK,
+                (p1.y * (1.0 - Geometry.cos(phi)) / phi.getRadian()) + (p1.y * (Geometry.sin(phi)) / phi.getRadian()) * INCH_PER_TICK
         );
         pose = new Pose(
                 Geometry.add(pose.point, p2),
                 Geometry.add(pose.angle, phi)
         );
-        velocityBuffer.addValue(Geometry.pythagorean(p2.x, p2.y));
-        phiBuffer.addValue(Geometry.add(phi, new Vector(p2)).getRadian());
+        double time = (System.currentTimeMillis() - saveTime) / 1000.0;
+        velocityBuffer.addValue(Geometry.pythagorean(p2.x, p2.y) / time);
+        phiBuffer.addValue(Geometry.add(phi, new Vector(p2)).getRadian() / time);
+        saveTime = System.currentTimeMillis();
         return pose;
     }
 
-    /**Returns the velocity of the robot as a vector (encoder movement / update rate).*/
+    /**Returns the velocity of the robot as a vector (inch/second).*/
     public Vector getVelocity() { return new Vector(velocityBuffer.getAverage(), new Angle((float) phiBuffer.getAverage())); }
-    /**Returns the acceleration of the robot as a vector (encoder movement / (update rate)²).*/
+    /**Returns the acceleration of the robot as a vector (inch/second²).*/
     public Vector getAcceleration() {
         RollingAverage vd = velocityBuffer.getDerivative();
         RollingAverage ad = phiBuffer.getDerivative();
         return new Vector(vd.getAverage(), new Angle((float) ad.getAverage()));
+    }
+
+    /**@param packet A telemetry packet to draw to.
+     * @param robotShape A quadrilateral representing the 2D shape of the robot.
+     * @return A packet modified to contain a drawing of the robot pose onto the field map.*/
+    public TelemetryPacket drawPose(TelemetryPacket packet, Quadrilateral robotShape) {
+        TelemetryPacket p = packet;
+        Quadrilateral shape = new Quadrilateral(
+                Geometry.rotate(robotShape.getA(), pose.angle),
+                Geometry.rotate(robotShape.getB(), pose.angle),
+                Geometry.rotate(robotShape.getC(), pose.angle),
+                Geometry.rotate(robotShape.getD(), pose.angle)
+        );
+        double[] shapeX = {shape.getA().x, shape.getB().x, shape.getC().x, shape.getD().x};
+        double[] shapeY = {shape.getA().y, shape.getB().y, shape.getC().y, shape.getD().y};
+        Point velocity = Geometry.add(pose.point, getVelocity().toPoint());
+        Point acceleration = Geometry.add(velocity, getAcceleration().toPoint());
+        p.fieldOverlay()
+                //draws center point
+                .setFill("blue")
+                .fillCircle(pose.point.x, pose.point.y, 1)
+                //draws robot outline
+                .fillPolygon(Arrays.copyOfRange(shapeX, 0, 1), Arrays.copyOfRange(shapeY, 0, 1))
+                .fillPolygon(Arrays.copyOfRange(shapeX, 1, 2), Arrays.copyOfRange(shapeY, 1, 2))
+                .fillPolygon(Arrays.copyOfRange(shapeX, 2, 3), Arrays.copyOfRange(shapeY, 2, 3))
+                .fillPolygon(new double[] {shapeX[3], shapeX[0]}, new double[] {shapeY[3], shapeY[0]})
+                //draw velocity
+                .setFill("green")
+                .fillPolygon(new double[] {pose.point.x, velocity.x}, new double[] {pose.point.y, velocity.y})
+                //draw acceleration
+                .setFill("red")
+                .fillPolygon(new double[] {acceleration.x, velocity.x}, new double[] {acceleration.y, velocity.y});
+        return p;
     }
 }

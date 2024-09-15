@@ -73,6 +73,10 @@ public class Geometry {
         }
         return new Point(x, y);
     }
+    /**@param point A point.
+     * @param angle An angle.
+       @return The point rotated by the angle about the origin.*/
+    public static Point rotate(Point point, Angle angle) { return new Point(((point.x * cos(angle)) - (point.y * sin(angle))), ((point.x * sin(angle)) + (point.y * cos(angle)))); }
 
     /**@param vector1 First vector.
      * @param vector2 Second vector.
