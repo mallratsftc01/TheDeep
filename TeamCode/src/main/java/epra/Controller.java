@@ -10,8 +10,6 @@ import java.util.Map;
 
 /**Extends the Gamepad Class.
  * <p></p>
- * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
- * <p></p>
  * Introduces new functionality to joysticks, triggers, and buttons.
  * <p></p>
  * Joysticks and Triggers:
@@ -30,7 +28,9 @@ import java.util.Map;
  * If the method is called again while the button is still pressed, the return will be false.
  * If the method is called while the button is released it will clear.
  * <p>
- * Toggle - A boolean separate from the button that can be changed with or without button input.*/
+ * Toggle - A boolean separate from the button that can be changed with or without button input.
+ * <p></p>
+ * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class Controller extends Gamepad {
     Gamepad gamepad;
     /**An enum to store all the buttons and analogs.*/
@@ -69,8 +69,6 @@ public class Controller extends Gamepad {
     private float deadband;
 
     /**Extends the Gamepad Class.
-     * <p></p>
-     * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * <p></p>
      * Introduces new functionality to joysticks, triggers, and buttons.
      * <p></p>

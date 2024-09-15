@@ -12,13 +12,9 @@ public class PolyGroup implements Shape2D {
     ArrayList<Shape2D> components = new ArrayList<Shape2D>();
 
     /**Holds a group of geometric components.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * @param components Geometric components to form the PolyGroup.*/
+     *@param components Geometric components to form the PolyGroup.*/
     public PolyGroup(Shape2D[] components) { Collections.addAll(this.components, components); }
-    /**Holds a group of geometric components.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
+    /**Holds a group of geometric components.*/
     public PolyGroup() {}
 
     /**@param component Geometric component to add to the PolyGroup.*/

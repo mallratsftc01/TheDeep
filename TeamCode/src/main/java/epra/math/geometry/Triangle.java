@@ -8,8 +8,6 @@ public class Triangle implements Shape2D{
     private Angle angleA, angleB, angleC;
 
     /**Stores a triangle with points a, b, c.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param a Point a.
      * @param b Point b.
      * @param c Point c.*/
@@ -23,8 +21,6 @@ public class Triangle implements Shape2D{
         updateAngles();
     }
     /**Stores a triangle with points a, b, c.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param a Point a.
      * @param b Point b.
      * @param angleA The angle of the two sides intersecting at point a.
@@ -42,8 +38,6 @@ public class Triangle implements Shape2D{
 
     //Right Triangles
     /**Stores a triangle with points a, b, c.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      *<p>
      *This constructor creates a right triangle with the angle of the sides intersecting at point b being right.
      * @param a Point a.
@@ -58,8 +52,6 @@ public class Triangle implements Shape2D{
         this.angleC = new Angle((float) Math.atan(side1 / side2));
     }
     /**Stores a triangle with points a, b, c.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      *<p>
      *This constructor creates a right triangle with the angle of the sides intersecting at point b being right.
      * @param a Point a.
@@ -75,8 +67,6 @@ public class Triangle implements Shape2D{
         this.angleC = new Angle(180.0 - (this.angleA.getDegree() + this.angleB.getDegree()));
     }
     /**Stores a triangle with points a, b, c.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      *<p>
      *This constructor creates a right triangle with the angle of the sides intersecting at point b being right.
      * @param v A vector with a length and an angle.

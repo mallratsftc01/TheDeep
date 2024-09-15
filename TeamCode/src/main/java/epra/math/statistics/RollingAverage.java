@@ -3,11 +3,11 @@ package epra.math.statistics;
 import java.util.ArrayList;
 
 /**A rolling average of values stored in a buffer.
- *<p></p>
- *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
- * <p></p>
+ * <p>
  * This class is intended for use sensors that give sometimes unreliable outputs. This average should flatten out any outliers.
- * The average can be biased towards more recent values so that actual movement is preserved.*/
+ * The average can be biased towards more recent values so that actual movement is preserved.
+ * <p>
+ * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class RollingAverage {
 
     /**Enum containing all types of bias the rolling average can use and the corresponding methods for those bias types.*/
@@ -39,8 +39,6 @@ public class RollingAverage {
 
     /**A rolling average of values stored in a buffer.
      *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
      * This class is intended for use sensors that give sometimes unreliable outputs. This average should flatten out any outliers.
      * The average can be biased towards more recent values so that actual movement is preserved.
      * @param bufferSize Size of the buffer.
@@ -56,8 +54,6 @@ public class RollingAverage {
 
     /**A rolling average of values stored in a buffer.
      *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
      * This class is intended for use sensors that give sometimes unreliable outputs. This average should flatten out any outliers.
      * The average can be biased towards more recent values so that actual movement is preserved.
      * @param bufferSize Size of the buffer.

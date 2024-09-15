@@ -5,19 +5,15 @@ import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
 import epra.math.geometry.Vector;
 
-/**
- * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
+/**Store a pose value consisting of a point and an angle.
  * <p></p>
- * Store a pose value consisting of a point and an angle.*/
+ *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class Pose {
 
     public Point point;
     public Angle angle;
 
-    /**
-     * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
-     * Store a pose value consisting of a point and an angle.
+    /**Store a pose value consisting of a point and an angle.
      * @param point The point to store.
      * @param angle The angle to store.*/
     public Pose(Point point, Angle angle) {

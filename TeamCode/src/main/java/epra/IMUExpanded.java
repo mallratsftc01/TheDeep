@@ -9,7 +9,10 @@ import java.util.Collections;
 
 import epra.math.geometry.Angle;
 import epra.math.geometry.Geometry;
-
+/**
+ * Increases the functionality of the IMU class.
+ * <p></p>
+ * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class IMUExpanded {
 
     private Angle baseYaw = new Angle(0);
@@ -27,8 +30,6 @@ public class IMUExpanded {
     /**
      * Increases the functionality of the IMU class.
      * <p></p>
-     * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
      * Expands the functionality of one IMU.
      * @param imu An IMU.
      */
@@ -38,8 +39,6 @@ public class IMUExpanded {
 
     /**
      * Increases the functionality of the IMU class.
-     * <p></p>
-     * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * <p></p>
      * Expands the functionality of two IMUs.
      * @param imu1 First IMU.
@@ -52,8 +51,6 @@ public class IMUExpanded {
 
     /**
      * Increases the functionality of the IMU class.
-     * <p></p>
-     * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * <p></p>
      * Expands the functionality of multiple IMUs.
      * @param imu Array of IMUs.

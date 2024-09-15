@@ -9,17 +9,13 @@ public class Angle {
 
     /**Stores an Angle value.
      *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param radian Radian value to set stored value to.*/
     public Angle(float radian) { this.radian = radian; }
     /**Stores an Angle value.
      *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param degree Degree value to set stored value to.*/
     public Angle(double degree) { this.radian = (Math.PI / 180.0) * degree; }
-    /**Stores an Angle value.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
+    /**Stores an Angle value.*/
     public Angle() { this.radian = 0.0; }
 
     /**@param radian Radian value to set stored value to.*/

@@ -8,8 +8,6 @@ public class Vector extends Angle {
     private double length;
 
     /**Stores an length, theta vector.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param length
      * @param theta*/
     public Vector(double length, Angle theta) {
@@ -18,8 +16,6 @@ public class Vector extends Angle {
     }
 
     /**Stores an length, theta vector.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param x
      * @param y*/
     public Vector(double x, double y) {
@@ -28,8 +24,6 @@ public class Vector extends Angle {
     }
 
     /**Stores an length, theta vector.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param point Point at the end of the vector.*/
     public Vector(Point point) {
         super((float) ((point.y < 0.0) ? Math.PI - Math.atan(point.x / point.y) : Math.atan(point.x / point.y)));

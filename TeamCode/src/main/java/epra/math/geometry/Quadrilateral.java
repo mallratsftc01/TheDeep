@@ -6,8 +6,6 @@ public class Quadrilateral implements Shape2D {
 
     private Triangle tri1, tri2;
     /**Stores a quadrilateral as a construct of two triangles.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param a Point a.
      * @param b Point b.
      * @param c Point c.

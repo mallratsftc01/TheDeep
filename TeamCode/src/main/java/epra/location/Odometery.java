@@ -15,10 +15,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
- * <p></p>
- * Uses odometer encoders to determine robot pose.*/
+/**Uses odometer encoders to determine robot pose.
+ *<p></p>
+ * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class Odometery {
 
     private final double INCH_PER_TICK = (48.0 * Math.PI) / 50800.0;
@@ -42,10 +41,7 @@ public class Odometery {
     /**A buffer of the angle of the velocity (phi) of the robot in radians.*/
     private RollingAverage phiBuffer = new RollingAverage(25, RollingAverage.Bias.LINEAR);
 
-    /**
-     * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
-     * Uses odometer encoders to determine robot pose.
+    /**Uses odometer encoders to determine robot pose.
      * @param leftEncoder The left parallel encoder.
      * @param rightEncoder The right parallel encoder.
      * @param perpendicularEncoder The perpendicular encoder.

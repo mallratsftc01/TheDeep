@@ -10,8 +10,6 @@ public class Circle implements Shape2D {
     private Angle end;
 
     /**Stores a full circle.
-     *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param center The center point of the circle.
      * @param radius The radius of the circle.*/
     public Circle(Point center, double radius) {
@@ -22,7 +20,6 @@ public class Circle implements Shape2D {
     }
     /**Stores a full circle or partial circle. The partial circle is defined between the start angle and end angle COUNTERCLOCKWISE.
      *<p></p>
-     *Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.
      * @param center The center point of the circle.
      * @param radius The radius of the circle.
      * @param start The start angle of the circle.

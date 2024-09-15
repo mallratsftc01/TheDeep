@@ -1,6 +1,8 @@
 package epra;
 
-//Queer coded - Zachy K
+/**A storage class for button or analog data.
+ * <p></p>
+ * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class Button {
 
     private float value;
@@ -9,9 +11,7 @@ public class Button {
     public boolean toggle;
     public int counter;
 
-    /**Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
-     * A storage class for button or analog data.
+    /**A storage class for button or analog data.
      * @param value A starting float value
      */
     public Button(float value) {
@@ -20,9 +20,7 @@ public class Button {
         toggle = false;
         counter = 0;
     }
-    /**Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
-     * A storage class for button or analog data.
+    /**A storage class for button or analog data.
      * @param value A starting boolean value
      */
     public Button(boolean value) {
@@ -31,10 +29,7 @@ public class Button {
         toggle = false;
         counter = 0;
     }
-    /**Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
-     * A storage class for button or analog data.
-     */
+    /**A storage class for button or analog data.*/
     public Button() {
         value = 0.0f;
         flag = false;

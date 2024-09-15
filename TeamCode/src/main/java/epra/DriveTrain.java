@@ -18,11 +18,10 @@ import java.util.Map;
 
 import epra.math.geometry.Angle;
 
-/**
- * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
+/**Coordinates motors in order to create cohesive robot motion.
+ * This class can be used for a variable number of motors for several drive types.
  * <p></p>
- * Coordinates motors in order to create cohesive robot motion.
- * This class can be used for a variable number of motors for several drive types.*/
+ * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class DriveTrain {
     /**All the orientations a motor can be in relative to the DriveTrain.*/
     public static enum Orientation {
@@ -117,10 +116,7 @@ public class DriveTrain {
 
     private Double targetDegrees = 0.0;
 
-    /**
-     * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
-     * Coordinates motors in order to create cohesive robot motion.
+    /**Coordinates motors in order to create cohesive robot motion.
      * This class can be used for a variable number of motors for several drive types.
      *
      * @param motorNames   Names that will be associated with each motor. Defaults to tank drive.
@@ -137,12 +133,8 @@ public class DriveTrain {
         driveType = DriveType.TANK;
     }
 
-    /**
-     * Queer Coded by Zachy K. If you use this class or a method from this class in its entirety, please make sure to give credit.
-     * <p></p>
-     * Coordinates motors in order to create cohesive robot motion.
+    /**Coordinates motors in order to create cohesive robot motion.
      * This class can be used for a variable number of motors for several drive types.
-     *
      * @param motorNames   Names that will be associated with each motor.
      * @param motors       DcMotorExs that will be used by the DriveTrain.
      * @param orientations The orientation of each motor.
