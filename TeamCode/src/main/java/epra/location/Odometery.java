@@ -88,7 +88,7 @@ public class Odometery {
      * @return The new phi value. */
     public Angle phiEncoder() {
         float l = (float) Math.abs(Geometry.subtract(displacement.get(Orientation.LEFT), displacement.get(Orientation.RIGHT)).x);
-        phi = new Angle((float) (delta.get(Orientation.LEFT) - delta.get(Orientation.RIGHT)) / l);
+        phi = new Angle((float) (delta.get(Orientation.LEFT) - delta.get(Orientation.RIGHT) * INCH_PER_TICK) / l);
         return phi;
     }
     /**Updates the phi (delta theta) value using the imu.
