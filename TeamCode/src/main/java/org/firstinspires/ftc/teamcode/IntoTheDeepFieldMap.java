@@ -19,7 +19,6 @@ public class IntoTheDeepFieldMap implements FieldMap {
     /**Holds all the different sections of the field.*/
     enum DeepSection implements Section {
         DOES_NOT_EXIST,
-        OBSTACLE,
         ASCENT_ZONE_RED,
         ASCENT_ZONE_BLUE,
         NET_ZONE_RED,
@@ -29,11 +28,12 @@ public class IntoTheDeepFieldMap implements FieldMap {
         SPIKE_MARK_RED,
         SPIKE_MARK_BLUE,
         SUBMERSIBLE,
-        UNZONED,
+        UNZONED
     }
 
     /**Map of all sections and associated component.*/
     static Map<IntoTheDeepFieldMap.DeepSection, Shape2D> map = new HashMap<>();
+    static Shape2D obstacle;
 
     /**The center point of the field.*/
     static Point center = new Point(0.0,0.0);
@@ -98,6 +98,28 @@ public class IntoTheDeepFieldMap implements FieldMap {
                                 new Point(0.0, 41.375)
                         )
                 } ));
+        obstacle = new PolyGroup(
+                new Shape2D[] {
+                        new Quadrilateral(
+                                new Point(14.0, 21.75),
+                                new Point(-14.0, 21.75),
+                                new Point(-14.0, -21.75),
+                                new Point(14.0, -21.75)
+                        ),
+                        new Quadrilateral(
+                                new Point(14.0, 31.0),
+                                new Point(14.0, -31.0),
+                                new Point(13.0, -31.0),
+                                new Point(13.0, 31.0)
+                        ),
+                        new Quadrilateral(
+                                new Point(-14.0, 31.0),
+                                new Point(-14.0, -31.0),
+                                new Point(-13.0, -31.0),
+                                new Point(-13.0, 31.0)
+                        )
+                }
+        );
     }
 
     /**@param point Point to check.
@@ -108,5 +130,11 @@ public class IntoTheDeepFieldMap implements FieldMap {
         }
         if (field.checkPoint(point)) { return DeepSection.UNZONED; }
         else { return IntoTheDeepFieldMap.DeepSection.DOES_NOT_EXIST; }
+    }
+
+    /**@param point Point to check.
+     * @return True if the point is hitting an obstacle, false if not.*/
+    public boolean checkObstacle(Point point) {
+        return obstacle.checkPoint(point) || !field.checkPoint(point);
     }
 }
