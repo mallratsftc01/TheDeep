@@ -4,6 +4,9 @@ import epra.Controller;
 import epra.DriveTrain;
 import epra.IMUExpanded;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -28,6 +31,8 @@ public class TheDeep extends LinearOpMode {
     private IMU imu1;
     private IMU imu2;
     private IMUExpanded imuX;
+
+    FtcDashboard dashboard;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,6 +59,9 @@ public class TheDeep extends LinearOpMode {
         //imu2.initialize(new IMU.Parameters(orientationOnRobot));
         imuX = new IMUExpanded(imu1);
 
+        dashboard = FtcDashboard.getInstance();
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         waitForStart();
         while (opModeIsActive()) {
             controller1.update();
@@ -61,10 +69,16 @@ public class TheDeep extends LinearOpMode {
 
             //drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
 
-            telemetry.addData("Current Angle: ", imuX.getYaw().getDegree());
-            telemetry.addData("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
-            telemetry.addData("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
-            telemetry.update();
+            TelemetryPacket packet = new TelemetryPacket();
+
+            packet.fieldOverlay()
+                    .setFill("blue")
+                    .fillCircle(0, 0, 1);
+
+            packet.put("Current Angle: ", imuX.getYaw().getDegree());
+            packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
+            packet.put("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
+            dashboard.sendTelemetryPacket(packet);
         }
     }
 }
