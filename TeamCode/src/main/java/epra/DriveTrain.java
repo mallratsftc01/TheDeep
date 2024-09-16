@@ -239,6 +239,14 @@ public class DriveTrain {
         setMotorPowers();
     }
     /**
+     * Holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Created 9/24/2022.
+     * @param powerRightX X position of the right joystick.
+     * @param vectorLeft A vector representing the left joystick.
+     */
+    public void mecanumDrive(float powerRightX, Vector vectorLeft) {
+        mecanumDrive(powerRightX, (float) vectorLeft.toPoint().x, (float) vectorLeft.toPoint().y);
+    }
+    /**
      * Holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Uses the IMU to facilitate more accurate turns. Created 11/22/2023.
      * @param powerLeftX X position of the left joystick.
      * @param powerLeftY Y position of the left joystick.
@@ -250,6 +258,15 @@ public class DriveTrain {
         float rightPow = (float) (Geometry.direction(current, vectorRight) * Math.min(Geometry.subtract(current, vectorRight).getRadian(), 1.0f) * vectorRight.getLength());
         mecanumDrive(rightPow, powerLeftX, powerLeftY);
         return new double[] {rightPow, Geometry.direction(current, vectorRight), Geometry.subtract(current, vectorRight).getRadian()};
+    }
+    /**
+     * Holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Uses the IMU to facilitate more accurate turns. Created 11/22/2023.
+     * @param vectorRight A vector representing the right joystick.
+     * @param vectorLeft A vector representing the left joystick.
+     * @param imu IMU to find angles and use methods.
+     */
+    public double[] gyroMecanumDrive(Vector vectorRight, Vector vectorLeft, IMUExpanded imu) {
+        return gyroMecanumDrive((float) vectorLeft.toPoint().x, (float) vectorLeft.toPoint().y, vectorRight, imu);
     }
 
     /**Uses a drive based on the DriveTrain's drive type.
