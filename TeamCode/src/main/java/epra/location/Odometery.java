@@ -140,11 +140,12 @@ public class Odometery {
         return new Vector(vd.getAverage(), new Angle((float) ad.getAverage()));
     }
 
-    /**Draws the robot, its velocity, and acceleration onto the field map.
+    /**Draws the robot, its velocity, acceleration, and odometer velocity onto the field map.
      * @param packet A telemetry packet to draw to.
      * @param robotShape A quadrilateral representing the 2D shape of the robot relative to the center of the robot.
+     * @param drawOdometers Whether or not to draw the odometers and their velocities.
      * @return A packet modified to contain a drawing of the robot pose onto the field map.*/
-    public TelemetryPacket drawPose(TelemetryPacket packet, Quadrilateral robotShape) {
+    public TelemetryPacket drawPose(TelemetryPacket packet, Quadrilateral robotShape, boolean drawOdometers) {
         TelemetryPacket p = packet;
         Quadrilateral shape = new Quadrilateral(
                 Geometry.rotate(robotShape.getA(), pose.angle),
@@ -171,49 +172,16 @@ public class Odometery {
                 //draw acceleration
                 .setFill("red")
                 .fillPolygon(new double[] {acceleration.x, velocity.x}, new double[] {acceleration.y, velocity.y});
-        return p;
-    }
-
-    /**Draws the robot, its velocity, acceleration, and motor velocities onto the field map.
-     * @param packet A telemetry packet to draw to.
-     * @param robotShape A quadrilateral representing the 2D shape of the robot relative to the center of the robot.
-     * @param motorPos An array of the point locations of the motors relative to the robot.
-     * @param motorVelocity An array of vectors representing the angle and power of each motor.
-     * @return A packet modified to contain a drawing of the robot pose onto the field map.*/
-    public TelemetryPacket drawPose(TelemetryPacket packet, Quadrilateral robotShape, Point[] motorPos, Vector[] motorVelocity) {
-        TelemetryPacket p = packet;
-        Quadrilateral shape = new Quadrilateral(
-                Geometry.rotate(robotShape.getA(), pose.angle),
-                Geometry.rotate(robotShape.getB(), pose.angle),
-                Geometry.rotate(robotShape.getC(), pose.angle),
-                Geometry.rotate(robotShape.getD(), pose.angle)
-        );
-        double[] shapeX = {shape.getA().x, shape.getB().x, shape.getC().x, shape.getD().x};
-        double[] shapeY = {shape.getA().y, shape.getB().y, shape.getC().y, shape.getD().y};
-        Point velocity = Geometry.add(pose.point, getVelocity().toPoint());
-        Point acceleration = Geometry.add(velocity, getAcceleration().toPoint());
-        p.fieldOverlay()
-                //draws center point
-                .setFill("blue")
-                .fillCircle(pose.point.x, pose.point.y, 1)
-                //draws robot outline
-                .fillPolygon(Arrays.copyOfRange(shapeX, 0, 1), Arrays.copyOfRange(shapeY, 0, 1))
-                .fillPolygon(Arrays.copyOfRange(shapeX, 1, 2), Arrays.copyOfRange(shapeY, 1, 2))
-                .fillPolygon(Arrays.copyOfRange(shapeX, 2, 3), Arrays.copyOfRange(shapeY, 2, 3))
-                .fillPolygon(new double[] {shapeX[3], shapeX[0]}, new double[] {shapeY[3], shapeY[0]})
-                //draw velocity
-                .setFill("green")
-                .fillPolygon(new double[] {pose.point.x, velocity.x}, new double[] {pose.point.y, velocity.y})
-                //draw acceleration
-                .setFill("red")
-                .fillPolygon(new double[] {acceleration.x, velocity.x}, new double[] {acceleration.y, velocity.y});
-        //draw motor velocities
-        for (int i = 0; i < motorPos.length; i++) {
-            Point start = Geometry.add(pose.point, motorPos[i]);
-            Point end = Geometry.add(start, motorVelocity[i].toPoint());
-            p.fieldOverlay()
-                    .setFill("green")
-                    .fillPolygon(new double[] {start.x, end.x}, new double[] { start.y, end.y});
+        if (drawOdometers) {
+            //draw odometer velocities
+            for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
+                Point start = Geometry.add(pose.point, displacement.get(entry.getKey()));
+                Vector velo = new Vector(delta.get(entry.getKey()), Geometry.add(pose.angle, (entry.getKey() == Orientation.PERPENDICULAR) ? new Angle(90.0) : new Angle()));
+                Point end = Geometry.add(start, velo.toPoint());
+                p.fieldOverlay()
+                        .setFill("green")
+                        .fillPolygon(new double[] {start.x, end.x}, new double[] { start.y, end.y});
+            }
         }
         return p;
     }
