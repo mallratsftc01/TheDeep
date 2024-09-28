@@ -18,7 +18,7 @@ import java.util.Map;
 /**Uses odometer encoders to determine robot pose.
  *<p></p>
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
-public class Odometery {
+public class Odometry {
 
     private final double INCH_PER_TICK = (48.0 * Math.PI) / 50800.0;
 
@@ -51,7 +51,7 @@ public class Odometery {
      * @param imu The imu.
      * @param startPose The starting pose of the robot on the field.
      * */
-    public Odometery(DcMotorEx leftEncoder, DcMotorEx rightEncoder, DcMotorEx perpendicularEncoder, Point displacementLeft, Point displacementRight, Point displacementPerpendicular, IMUExpanded imu, Pose startPose) {
+    public Odometry(DcMotorEx leftEncoder, DcMotorEx rightEncoder, DcMotorEx perpendicularEncoder, Point displacementLeft, Point displacementRight, Point displacementPerpendicular, IMUExpanded imu, Pose startPose) {
         encoder.put(Orientation.LEFT, leftEncoder);
         encoder.put(Orientation.RIGHT, rightEncoder);
         encoder.put(Orientation.PERPENDICULAR, perpendicularEncoder);
@@ -130,6 +130,9 @@ public class Odometery {
         saveTime = System.currentTimeMillis();
         return pose;
     }
+
+    /**@return The most recent pose value.*/
+    public Pose getPose() { return pose; }
 
     /**Returns the velocity of the robot as a vector (inch/second).*/
     public Vector getVelocity() { return new Vector(velocityBuffer.getAverage(), new Angle((float) phiBuffer.getAverage())); }

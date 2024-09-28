@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import epra.Controller;
 import epra.DriveTrain;
 import epra.IMUExpanded;
+import epra.math.geometry.Point;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -19,6 +20,9 @@ import java.util.Arrays;
 
 @TeleOp
 public class TheDeep extends LinearOpMode {
+
+    private final Point LEFT_ENCODER = new Point(-8.0, 3.0);
+    private final Point RIGHT_ENCODER = new Point(8.0, 3.0);
 
     private DcMotorEx northEastMotor;
     private DcMotorEx southEastMotor;
