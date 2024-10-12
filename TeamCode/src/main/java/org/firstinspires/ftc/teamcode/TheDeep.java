@@ -3,7 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import epra.Controller;
 import epra.DriveTrain;
 import epra.IMUExpanded;
+import epra.location.Odometry;
+import epra.location.Pose;
+import epra.math.geometry.Angle;
 import epra.math.geometry.Point;
+import epra.math.geometry.Quadrilateral;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -36,7 +40,11 @@ public class TheDeep extends LinearOpMode {
     private IMU imu2;
     private IMUExpanded imuX;
 
+    private Odometry odometry;
+
     FtcDashboard dashboard;
+
+    int deltaDiff = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -63,6 +71,17 @@ public class TheDeep extends LinearOpMode {
         //imu2.initialize(new IMU.Parameters(orientationOnRobot));
         imuX = new IMUExpanded(imu1);
 
+        odometry = new Odometry(northWestMotor, southWestMotor, northEastMotor,
+                new Point(7.25, 3.75),
+                new Point(-8.25, 3.75),
+                new Point(0, 2.0),
+                imuX,
+                new Pose(
+                        new Point(0, 9.0),
+                        new Angle(180.0)
+                )
+        );
+
         dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -71,17 +90,38 @@ public class TheDeep extends LinearOpMode {
             controller1.update();
             controller2.update();
 
-            //drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
+            drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
+
+            odometry.estimatePose();
 
             TelemetryPacket packet = new TelemetryPacket();
+            /*odometry.drawPose(new Quadrilateral(
+                            new Point(9.0, 9.0),
+                            new Point(-9.0, 9.0),
+                            new Point(-9.0, -9.0),
+                            new Point(9.0, -9.0)
+                    ), true
+            );*/
 
-            packet.fieldOverlay()
-                    .setFill("blue")
-                    .fillCircle(0, 0, 1);
+            packet.put("X", odometry.getPose().point.x);
+            packet.put("Y", odometry.getPose().point.y);
+            packet.put("Angle", odometry.getPose().angle.getDegree());
 
-            packet.put("Current Angle: ", imuX.getYaw().getDegree());
-            packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
-            packet.put("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
+            packet.put("Right Encoder", odometry.getPos(Odometry.Orientation.RIGHT));
+            packet.put("Left Encoder", odometry.getPos(Odometry.Orientation.LEFT));
+            packet.put("Perpendicular Encoder", odometry.getPos(Odometry.Orientation.PERPENDICULAR));
+
+            packet.put("Delta Right", odometry.getDelta(Odometry.Orientation.RIGHT));
+            packet.put("Delta Left", odometry.getDelta(Odometry.Orientation.LEFT));
+            packet.put("Delta Perpendicular", odometry.getDelta(Odometry.Orientation.PERPENDICULAR));
+
+            packet.put("|Delta Left| - |Delta Right|", Math.abs(odometry.getDelta(Odometry.Orientation.LEFT)) - Math.abs(odometry.getDelta(Odometry.Orientation.RIGHT)));
+            deltaDiff += Math.abs(odometry.getDelta(Odometry.Orientation.LEFT)) - Math.abs(odometry.getDelta(Odometry.Orientation.RIGHT));
+            packet.put("|Delta Left| - |Delta Right| Total", deltaDiff);
+            packet.put("Phi", odometry.getPhi().getDegree());
+            //packet.put("Current Angle: ", imuX.getYaw().getDegree());
+            //packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
+            //packet.put("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
             dashboard.sendTelemetryPacket(packet);
         }
     }

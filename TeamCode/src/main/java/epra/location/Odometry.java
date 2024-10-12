@@ -22,9 +22,10 @@ public class Odometry {
 
     private final double INCH_PER_TICK = (48.0 * Math.PI) / 50800.0;
 
-    private enum Orientation { LEFT, RIGHT, PERPENDICULAR }
+    public enum Orientation { LEFT, RIGHT, PERPENDICULAR }
 
     private Map<Orientation, DcMotorEx> encoder = new HashMap<>();
+    private Map<Orientation, Integer> start = new HashMap<>();
     private Map<Orientation, Point> displacement = new HashMap<>();
     private Map<Orientation, Integer> pos = new HashMap<>();
     private Map<Orientation, Integer> delta = new HashMap<>();
@@ -55,6 +56,9 @@ public class Odometry {
         encoder.put(Orientation.LEFT, leftEncoder);
         encoder.put(Orientation.RIGHT, rightEncoder);
         encoder.put(Orientation.PERPENDICULAR, perpendicularEncoder);
+        start.put(Orientation.LEFT, leftEncoder.getCurrentPosition());
+        start.put(Orientation.RIGHT, rightEncoder.getCurrentPosition());
+        start.put(Orientation.PERPENDICULAR, perpendicularEncoder.getCurrentPosition());
         displacement.put(Orientation.LEFT, displacementLeft);
         displacement.put(Orientation.RIGHT, displacementRight);
         displacement.put(Orientation.PERPENDICULAR, displacementPerpendicular);
@@ -62,10 +66,10 @@ public class Odometry {
         pose = startPose;
 
         for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
-            pos.put(entry.getKey(), entry.getValue().getCurrentPosition());
+            pos.put(entry.getKey(), entry.getValue().getCurrentPosition() - start.get(entry.getKey()));
         }
         for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
-            delta.put(entry.getKey(), entry.getValue().getCurrentPosition() - pos.get(entry.getKey()));
+            delta.put(entry.getKey(), (entry.getValue().getCurrentPosition() - start.get(entry.getKey())) - pos.get(entry.getKey()));
         }
         saveTime = System.currentTimeMillis();
     }
@@ -73,22 +77,26 @@ public class Odometry {
     /**Updates the pos save of the encoders.*/
     public void updatePos() {
         for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
-            pos.replace(entry.getKey(), entry.getValue().getCurrentPosition());
+            pos.replace(entry.getKey(), entry.getValue().getCurrentPosition() - start.get(entry.getKey()));
         }
     }
+    /**@return The pos value assoiated with the corresponding encoder.*/
+    public int getPos(Orientation key) { return pos.get(key); }
 
     /**Updates the delta of the encoders.*/
     public void updateDelta() {
         for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
-            delta.replace(entry.getKey(), entry.getValue().getCurrentPosition() - pos.get(entry.getKey()));
+            delta.replace(entry.getKey(), (entry.getValue().getCurrentPosition() - start.get(entry.getKey())) - pos.get(entry.getKey()));
         }
     }
+    /**@return The change in pos value assoiated with the corresponding encoder.*/
+    public int getDelta(Orientation key) { return delta.get(key); }
 
     /**Updates the phi (delta theta) value using the encoders.
      * @return The new phi value. */
     public Angle phiEncoder() {
         float l = (float) Math.abs(Geometry.subtract(displacement.get(Orientation.LEFT), displacement.get(Orientation.RIGHT)).x);
-        phi = new Angle((float) (delta.get(Orientation.LEFT) - delta.get(Orientation.RIGHT) * INCH_PER_TICK) / l);
+        phi = new Angle( (delta.get(Orientation.LEFT) - delta.get(Orientation.RIGHT) * INCH_PER_TICK) / l);
         return phi;
     }
     /**Updates the phi (delta theta) value using the imu.
@@ -97,6 +105,9 @@ public class Odometry {
         phi = Geometry.subtract(imu.getYaw(), pose.angle);
         return phi;
     }
+    /**@return The change in angle of the robot.*/
+    public Angle getPhi() { return phi; }
+
     /**Finds the center displacement of the parallel encoders.*/
     public double centerDisplacement() { return (delta.get(Orientation.LEFT) + delta.get(Orientation.RIGHT)) / 2.0; }
     /**Finds the displacement of the perpendicular encoder.*/
@@ -144,12 +155,11 @@ public class Odometry {
     }
 
     /**Draws the robot, its velocity, acceleration, and odometer velocity onto the field map.
-     * @param packet A telemetry packet to draw to.
      * @param robotShape A quadrilateral representing the 2D shape of the robot relative to the center of the robot.
      * @param drawOdometers Whether or not to draw the odometers and their velocities.
      * @return A packet modified to contain a drawing of the robot pose onto the field map.*/
-    public TelemetryPacket drawPose(TelemetryPacket packet, Quadrilateral robotShape, boolean drawOdometers) {
-        TelemetryPacket p = packet;
+    public TelemetryPacket drawPose(Quadrilateral robotShape, boolean drawOdometers) {
+        TelemetryPacket p = new TelemetryPacket();
         Quadrilateral shape = new Quadrilateral(
                 Geometry.rotate(robotShape.getA(), pose.angle),
                 Geometry.rotate(robotShape.getB(), pose.angle),

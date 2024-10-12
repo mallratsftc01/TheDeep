@@ -187,7 +187,9 @@ public class RollingAverage {
     /**@return A new RollingAverage of the derivative of this RollingAverage.*/
     public RollingAverage getDerivative() {
         RollingAverage r = new RollingAverage(bufferSize, biasType, thresholdType, autoClearThreshold);
-        r.addValue(Statistics.differentiate(this.toArray()));
+        if (buffer.size() > 2) {
+            r.addValue(Statistics.differentiate(this.toArray()));
+        }
         return r;
     }
 }
