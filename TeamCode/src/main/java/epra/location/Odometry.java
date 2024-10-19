@@ -20,7 +20,8 @@ import java.util.Map;
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class Odometry {
 
-    private final double INCH_PER_TICK = (48.0 * Math.PI) / 50800.0;
+    private final double INCH_PER_TICK = (1.88976 * Math.PI) / 2000.0;
+    private final double ANGLE_ERROR_OFFSET = (178.4196476 / 100.7794981);
 
     public enum Orientation { LEFT, RIGHT, PERPENDICULAR }
 
@@ -30,6 +31,7 @@ public class Odometry {
     private Map<Orientation, Integer> pos = new HashMap<>();
     private Map<Orientation, Integer> delta = new HashMap<>();
     private Angle phi = new Angle(0.0);
+    private Pose startPose;
 
     private IMUExpanded imu;
 
@@ -64,6 +66,7 @@ public class Odometry {
         displacement.put(Orientation.PERPENDICULAR, displacementPerpendicular);
         this.imu = imu;
         pose = startPose;
+        this.startPose = startPose;
 
         for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
             pos.put(entry.getKey(), entry.getValue().getCurrentPosition() - start.get(entry.getKey()));
@@ -95,8 +98,11 @@ public class Odometry {
     /**Updates the phi (delta theta) value using the encoders.
      * @return The new phi value. */
     public Angle phiEncoder() {
-        float l = (float) Math.abs(Geometry.subtract(displacement.get(Orientation.LEFT), displacement.get(Orientation.RIGHT)).x);
-        phi = new Angle( (delta.get(Orientation.LEFT) - delta.get(Orientation.RIGHT) * INCH_PER_TICK) / l);
+        double l = Math.abs(Geometry.subtract(displacement.get(Orientation.LEFT), displacement.get(Orientation.RIGHT)).x);
+        phi = new Angle((((delta.get(Orientation.RIGHT) - delta.get(Orientation.LEFT)) * INCH_PER_TICK) / l) * (180.0 / Math.PI));
+        //compensates for previous error
+        Angle diff = Geometry.subtract(Geometry.add(new Angle((((pos.get(Orientation.RIGHT) - pos.get(Orientation.LEFT)) * INCH_PER_TICK) / l) * (180.0 / Math.PI)), startPose.angle), this.pose.angle);
+        phi = Geometry.add(diff, phi);
         return phi;
     }
     /**Updates the phi (delta theta) value using the imu.
@@ -127,9 +133,10 @@ public class Odometry {
                 (p0.x * Geometry.cos(pose.angle)) - (p0.x * Geometry.sin(pose.angle)),
                 (p0.y * Geometry.sin(pose.angle)) + (p0.y * Geometry.cos(pose.angle))
         );
+        double phiRadians = (phi.getRadian() != 0.0) ? phi.getRadian() : 0.00000000001;
         Point p2 = new Point(
-                (p1.x * (Geometry.sin(phi)) / phi.getRadian() + (p1.x * (Geometry.cos(phi) - 1.0) / phi.getRadian())) * INCH_PER_TICK,
-                (p1.y * (1.0 - Geometry.cos(phi)) / phi.getRadian()) + (p1.y * (Geometry.sin(phi)) / phi.getRadian()) * INCH_PER_TICK
+                (((p1.x * (Geometry.sin(phi)) / phiRadians) + (p1.x * (Geometry.cos(phi) - 1.0) / phiRadians))) * INCH_PER_TICK,
+                (((p1.y * (1.0 - Geometry.cos(phi)) / phiRadians)) + (p1.y * (Geometry.sin(phi)) / phiRadians)) * INCH_PER_TICK
         );
         pose = new Pose(
                 Geometry.add(pose.point, p2),

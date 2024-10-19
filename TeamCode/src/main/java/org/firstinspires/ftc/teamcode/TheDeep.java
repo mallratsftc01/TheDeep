@@ -6,6 +6,7 @@ import epra.IMUExpanded;
 import epra.location.Odometry;
 import epra.location.Pose;
 import epra.math.geometry.Angle;
+import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
 import epra.math.geometry.Quadrilateral;
 
@@ -72,12 +73,12 @@ public class TheDeep extends LinearOpMode {
         imuX = new IMUExpanded(imu1);
 
         odometry = new Odometry(northWestMotor, southWestMotor, northEastMotor,
-                new Point(7.25, 3.75),
-                new Point(-8.25, 3.75),
+                new Point(7.92784216, 3.75),
+                new Point(-8, 3.75),
                 new Point(0, 2.0),
                 imuX,
                 new Pose(
-                        new Point(0, 9.0),
+                        new Point(0, 64.0),
                         new Angle(180.0)
                 )
         );
@@ -115,10 +116,11 @@ public class TheDeep extends LinearOpMode {
             packet.put("Delta Left", odometry.getDelta(Odometry.Orientation.LEFT));
             packet.put("Delta Perpendicular", odometry.getDelta(Odometry.Orientation.PERPENDICULAR));
 
-            packet.put("|Delta Left| - |Delta Right|", Math.abs(odometry.getDelta(Odometry.Orientation.LEFT)) - Math.abs(odometry.getDelta(Odometry.Orientation.RIGHT)));
-            deltaDiff += Math.abs(odometry.getDelta(Odometry.Orientation.LEFT)) - Math.abs(odometry.getDelta(Odometry.Orientation.RIGHT));
-            packet.put("|Delta Left| - |Delta Right| Total", deltaDiff);
             packet.put("Phi", odometry.getPhi().getDegree());
+
+            packet.put("Center Displacement", odometry.centerDisplacement());
+            packet.put("Perpendicular Displacement", odometry.perpendicularDisplacement());
+
             //packet.put("Current Angle: ", imuX.getYaw().getDegree());
             //packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
             //packet.put("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
