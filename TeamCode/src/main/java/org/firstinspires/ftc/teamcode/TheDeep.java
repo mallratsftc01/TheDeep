@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.Arrays;
 
@@ -33,6 +34,13 @@ public class TheDeep extends LinearOpMode {
     private DcMotorEx southEastMotor;
     private DcMotorEx southWestMotor;
     private DcMotorEx northWestMotor;
+
+    private DcMotorEx horizontalArmMotor;
+    private DcMotorEx verticalArmMotor;
+
+    private Servo horizontalClaw;
+    private Servo horizontalWrist;
+    private Servo verticalClaw;
 
     private Controller controller1;
     private Controller controller2;
@@ -55,6 +63,13 @@ public class TheDeep extends LinearOpMode {
         southWestMotor = hardwareMap.get(DcMotorEx.class, "southwestMotor");
         northWestMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         northEastMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        horizontalArmMotor = hardwareMap.get(DcMotorEx.class, "horizontalMotor");
+        verticalArmMotor = hardwareMap.get(DcMotorEx.class, "verticalMotor");
+
+        horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
+        horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
+        verticalClaw = hardwareMap.get(Servo.class, "VerticalClaw");
 
         controller1 = new Controller (gamepad1, 0.05F);
         controller2 = new Controller (gamepad2, 0.05F);
@@ -91,7 +106,20 @@ public class TheDeep extends LinearOpMode {
             controller1.update();
             controller2.update();
 
+            //drive code
+
             drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
+
+            //arm code
+
+            horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
+            verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
+
+            //claw code
+
+            horizontalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.Y)) ? 1.0 : -1.0);
+            horizontalWrist.setPosition((controller2.buttonToggleSingle(Controller.Key.A)) ? 1.0 : -1.0);
+            verticalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.UP)) ? 1.0 : -1.0);
 
             odometry.estimatePose();
 
