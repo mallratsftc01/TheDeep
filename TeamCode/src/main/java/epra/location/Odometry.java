@@ -77,21 +77,17 @@ public class Odometry {
         saveTime = System.currentTimeMillis();
     }
 
-    /**Updates the pos save of the encoders.*/
-    public void updatePos() {
+    /**Updates the delta and pos save of the encoders.*/
+    public void updateDeltaPos() {
         for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
-            pos.replace(entry.getKey(), entry.getValue().getCurrentPosition() - start.get(entry.getKey()));
+            int current = entry.getValue().getCurrentPosition();
+            delta.replace(entry.getKey(), current - start.get(entry.getKey()) - pos.get(entry.getKey()));
+            pos.replace(entry.getKey(), current - start.get(entry.getKey()));
         }
     }
     /**@return The pos value assoiated with the corresponding encoder.*/
     public int getPos(Orientation key) { return pos.get(key); }
 
-    /**Updates the delta of the encoders.*/
-    public void updateDelta() {
-        for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
-            delta.replace(entry.getKey(), (entry.getValue().getCurrentPosition() - start.get(entry.getKey())) - pos.get(entry.getKey()));
-        }
-    }
     /**@return The change in pos value assoiated with the corresponding encoder.*/
     public int getDelta(Orientation key) { return delta.get(key); }
 
@@ -122,8 +118,7 @@ public class Odometry {
     /**Estimates the new pose value.
      * @return The new pose value.*/
     public Pose estimatePose() {
-        updateDelta();
-        updatePos();
+        updateDeltaPos();
         phiEncoder();
         Point p0 = new Point(
                 centerDisplacement(),
@@ -135,8 +130,8 @@ public class Odometry {
         );
         double phiRadians = (phi.getRadian() != 0.0) ? phi.getRadian() : 0.00000000001;
         Point p2 = new Point(
-                (((p1.x * (Geometry.sin(phi)) / phiRadians) + (p1.x * (Geometry.cos(phi) - 1.0) / phiRadians))) * INCH_PER_TICK,
-                (((p1.y * (1.0 - Geometry.cos(phi)) / phiRadians)) + (p1.y * (Geometry.sin(phi)) / phiRadians)) * INCH_PER_TICK
+                (((p1.y * (1.0 - Geometry.cos(phi)) / phiRadians)) + (p1.y * (Geometry.sin(phi)) / phiRadians)) * INCH_PER_TICK,
+                (((p1.x * (Geometry.sin(phi)) / phiRadians) + (p1.x * (Geometry.cos(phi) - 1.0) / phiRadians))) * INCH_PER_TICK * -1.0
         );
         pose = new Pose(
                 Geometry.add(pose.point, p2),
