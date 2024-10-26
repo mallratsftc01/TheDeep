@@ -14,4 +14,9 @@ public class Point {
         this.x = x;
         this.y = y;
     }
+
+    /**Tests if a point is the same as this point.\
+     * @param p Point to test
+     * @return True if the points are the same, false if they are not.*/
+    public boolean equals(Point p) { return (p.x == x && p.y == y); }
 }
