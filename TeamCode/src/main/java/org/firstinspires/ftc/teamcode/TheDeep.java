@@ -132,6 +132,10 @@ public class TheDeep extends LinearOpMode {
                     ), true
             );*/
 
+            packet.fieldOverlay()
+                    .setFill("blue")
+                    .fillCircle(odometry.getPose().point.x, odometry.getPose().point.y, 2);
+
             packet.put("X", odometry.getPose().point.x);
             packet.put("Y", odometry.getPose().point.y);
             packet.put("Angle", odometry.getPose().angle.getDegree());

@@ -11,6 +11,7 @@ import epra.math.statistics.RollingAverage;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -115,7 +116,7 @@ public class Odometry {
     /**Finds the displacement of the perpendicular encoder.*/
     public double perpendicularDisplacement() { return delta.get(Orientation.PERPENDICULAR) - (displacement.get(Orientation.PERPENDICULAR).y * phi.getRadian()); }
 
-    /**Estimates the new pose value.
+    /**Estimates the new pose value
      * @return The new pose value.*/
     public Pose estimatePose() {
         updateDeltaPos();
@@ -125,13 +126,13 @@ public class Odometry {
                 perpendicularDisplacement()
         );
         Point p1 = new Point(
-                (p0.x * Geometry.cos(pose.angle)) - (p0.x * Geometry.sin(pose.angle)),
-                (p0.y * Geometry.sin(pose.angle)) + (p0.y * Geometry.cos(pose.angle))
+                (p0.x * Geometry.cos(pose.angle)) - (p0.y* Geometry.sin(pose.angle)),
+                (p0.x * Geometry.sin(pose.angle)) + (p0.y * Geometry.cos(pose.angle))
         );
         double phiRadians = (phi.getRadian() != 0.0) ? phi.getRadian() : 0.00000000001;
         Point p2 = new Point(
-                (((p1.y * (1.0 - Geometry.cos(phi)) / phiRadians)) + (p1.y * (Geometry.sin(phi)) / phiRadians)) * INCH_PER_TICK,
-                (((p1.x * (Geometry.sin(phi)) / phiRadians) + (p1.x * (Geometry.cos(phi) - 1.0) / phiRadians))) * INCH_PER_TICK * -1.0
+                (((p1.x * (1.0 - Geometry.cos(phi)) / phiRadians)) + (p1.y * (Geometry.sin(phi)) / phiRadians)) * INCH_PER_TICK * -1.0,
+                (((p1.x * (Geometry.sin(phi)) / phiRadians) + (p1.y * (Geometry.cos(phi) - 1.0) / phiRadians))) * INCH_PER_TICK * -1.0
         );
         pose = new Pose(
                 Geometry.add(pose.point, p2),
