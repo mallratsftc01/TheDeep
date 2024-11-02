@@ -244,7 +244,16 @@ public class DriveTrain {
      * @param vectorLeft A vector representing the left joystick.
      */
     public void mecanumDrive(float powerRightX, Vector vectorLeft) {
-        mecanumDrive(powerRightX, (float) vectorLeft.toPoint().x, (float) vectorLeft.toPoint().y);
+        mecanumDrive(powerRightX, (float) vectorLeft.toPoint().y, (float) vectorLeft.toPoint().x);
+    }
+    /**
+     * Field Oriented holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Created 10/31/2024.
+     * @param powerRightX X position of the right joystick.
+     * @param vectorLeft A vector representing the left joystick.
+     * @param heading The angle of the robot relative to the field.
+     *  */
+    public void fieldOrientedMecanumDrive(float powerRightX, Vector vectorLeft, Angle heading) {
+        mecanumDrive(powerRightX, Geometry.subtract(vectorLeft, heading));
     }
     /**
      * Holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Uses the IMU to facilitate more accurate turns. Created 11/22/2023.

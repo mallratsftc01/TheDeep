@@ -85,7 +85,7 @@ public class Geometry {
     /**@param vector A vector.
      * @param angle An angle.
      * @return The resulting vector from adding the angle of the vector to the angle and keeping the length of the vector.*/
-    public static Vector add(Vector vector, Angle angle) { return new Vector(vector.getLength(), add(vector, angle)); }
+    public static Vector add(Vector vector, Angle angle) { return new Vector(vector.getLength(), add((Angle) vector, angle)); }
     /**@param vector1 First vector.
      * @param vector2 Second vector.
      * @return The resulting point from subtracting the second from the first.*/
@@ -93,7 +93,7 @@ public class Geometry {
     /**@param vector A vector.
      * @param angle An angle.
      * @return The resulting vector from subtracting the angle from the angle of the vector and keeping the length of the vector.*/
-    public static Vector subtract(Vector vector, Angle angle) { return new Vector(vector.getLength(), subtract(vector, angle)); }
+    public static Vector subtract(Vector vector, Angle angle) { return new Vector(vector.getLength(), subtract((Angle) vector, angle)); }
     /**@param vector1 First vector.
      * @param vector2 Second vector.
      * @return Returns the dot product of the two vectors.*/

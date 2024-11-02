@@ -15,6 +15,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -25,8 +26,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.Arrays;
 
 
-@TeleOp
-public class TheDeep extends LinearOpMode {
+@Autonomous
+public class AutoLeft extends LinearOpMode {
 
     private final Point LEFT_ENCODER = new Point(-8.0, 3.0);
     private final Point RIGHT_ENCODER = new Point(8.0, 3.0);
@@ -103,74 +104,11 @@ public class TheDeep extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
-        while (opModeIsActive()) {
-            controller1.update();
-            controller2.update();
 
-            //drive code
+        long startTime = System.currentTimeMillis();
 
-            drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
-            /*try {
-                drive.fieldOrientedMecanumDrive(
-                        controller1.analogDeadband(Controller.Key.RIGHT_STICK_X),
-                        new Vector(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y)),
-                        imuX.getYaw()
-                );
-            } catch (Exception e) {
-                telemetry.addData("error", e);
-            }*/
+        while (startTime + 3000 > System.currentTimeMillis()) { drive.setDrivePower(0, -0.5f, 0, 0); }
 
-            //arm code
-
-            horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
-            verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
-
-            //claw code
-
-            horizontalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.Y)) ? -1.0 : 1.0);
-            //horizontalWrist.setPosition((controller2.buttonToggleSingle(Controller.Key.A)) ? 1.0 : -1.0);
-            verticalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.UP)) ? 1.0 : -1.0);
-
-            odometry.estimatePose();
-
-            TelemetryPacket packet = new TelemetryPacket();
-            /*odometry.drawPose(new Quadrilateral(
-                            new Point(9.0, 9.0),
-                            new Point(-9.0, 9.0),
-                            new Point(-9.0, -9.0),
-                            new Point(9.0, -9.0)
-                    ), true
-            );*/
-            telemetry.addData("gyro angle: ", imuX.getYaw().getDegree());
-            telemetry.addData("joystick angle: ", controller1.analogDeadband(Controller.Stick.LEFT_STICK).getDegree());
-            telemetry.addData("up: ", controller2.getButton(Controller.Key.UP));
-            telemetry.update();
-
-            packet.fieldOverlay()
-                    .setFill("blue")
-                    .fillCircle(odometry.getPose().point.x, odometry.getPose().point.y, 2);
-
-            packet.put("X", odometry.getPose().point.x);
-            packet.put("Y", odometry.getPose().point.y);
-            packet.put("Angle", odometry.getPose().angle.getDegree());
-
-            packet.put("Right Encoder", odometry.getPos(Odometry.Orientation.RIGHT));
-            packet.put("Left Encoder", odometry.getPos(Odometry.Orientation.LEFT));
-            packet.put("Perpendicular Encoder", odometry.getPos(Odometry.Orientation.PERPENDICULAR));
-
-            packet.put("Delta Right", odometry.getDelta(Odometry.Orientation.RIGHT));
-            packet.put("Delta Left", odometry.getDelta(Odometry.Orientation.LEFT));
-            packet.put("Delta Perpendicular", odometry.getDelta(Odometry.Orientation.PERPENDICULAR));
-
-            packet.put("Phi", odometry.getPhi().getDegree());
-
-            packet.put("Center Displacement", odometry.centerDisplacement());
-            packet.put("Perpendicular Displacement", odometry.perpendicularDisplacement());
-
-            //packet.put("Current Angle: ", imuX.getYaw().getDegree());
-            //packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
-            //packet.put("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
-            dashboard.sendTelemetryPacket(packet);
-        }
+        drive.setDrivePower(0, 0, 0, 0);
     }
 }
