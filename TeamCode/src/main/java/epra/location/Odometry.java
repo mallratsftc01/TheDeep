@@ -107,9 +107,9 @@ public class Odometry {
      * @return The new phi value. */
     public Angle phiEncoder() {
         double l = Math.abs(Geometry.subtract(displacement.get(Orientation.LEFT), displacement.get(Orientation.RIGHT)).x);
-        phi = new Angle((((delta.get(Orientation.RIGHT) - delta.get(Orientation.LEFT)) * INCH_PER_TICK) / l) * (180.0 / Math.PI));
+        phi = new Angle((((delta.get(Orientation.RIGHT) - delta.get(Orientation.LEFT)) * INCH_PER_TICK) / l) * (180.0 / Math.PI) * -1.0);
         //compensates for previous error
-        Angle diff = Geometry.subtract(Geometry.add(new Angle((((pos.get(Orientation.RIGHT) - pos.get(Orientation.LEFT)) * INCH_PER_TICK) / l) * (180.0 / Math.PI)), startPose.angle), this.pose.angle);
+        Angle diff = Geometry.subtract(Geometry.add(new Angle((((pos.get(Orientation.RIGHT) - pos.get(Orientation.LEFT)) * INCH_PER_TICK) / l) * (180.0 / Math.PI) * -1.0), startPose.angle), this.pose.angle);
         phi = Geometry.add(diff, phi);
         return phi;
     }
@@ -140,9 +140,9 @@ public class Odometry {
                 (p0.x * Geometry.cos(pose.angle)) - (p0.y* Geometry.sin(pose.angle)),
                 (p0.x * Geometry.sin(pose.angle)) + (p0.y * Geometry.cos(pose.angle))
         );
-        double phiRadians = (phi.getRadian() != 0.0) ? phi.getRadian() : 0.00000000001;
+        double phiRadians = (phi.getRadian() != 0.0) ? phi.getRadian() : 1.0f;
         Point p2 = new Point(
-                (((p1.x * (1.0 - Geometry.cos(phi)) / phiRadians)) + (p1.y * (Geometry.sin(phi)) / phiRadians)) * INCH_PER_TICK * -1.0,
+                (((p1.x * (1.0 - Geometry.cos(phi)) / phiRadians)) + (p1.y * (Geometry.sin(phi)) / phiRadians)) * INCH_PER_TICK,
                 (((p1.x * (Geometry.sin(phi)) / phiRadians) + (p1.y * (Geometry.cos(phi) - 1.0) / phiRadians))) * INCH_PER_TICK * -1.0
         );
         pose = new Pose(
@@ -213,60 +213,5 @@ public class Odometry {
         return p;
     }
 
-    //A-Star related code
 
-    /**Finds the G score of a test pose, which is the G score of the current node + the distance between the current node and the test node.
-     * @param current The the current node.
-     * @param test The point to be tested.
-     * @return The G score of the test point.*/
-    public double gScore (Node current, Point test) { return current.g + Geometry.pythagorean(current.point, test); }
-    /**Finds the H score of a test pose, which is the distance between the endPose and the testPose.
-     * @param target The target point.
-     * @param test The point to be tested.
-     * @return The H score of the test point.*/
-    public double hScore (Point target, Point test) { return Geometry.pythagorean(target, test); }
-    /**Finds the F score of a test pose, which is the the G score + the H score.
-     * @param current The current node.
-     * @param target The target point.
-     * @param test The point to be tested.
-     * @return The F score of the test point.*/
-    public double fScore (Node current, Point target, Point test) { return gScore(current, test) + hScore(target, test); }
-
-    public ArrayList<Node>[] aStar(Pose startPose, Pose targetPose, FieldMap fieldMap) {
-        ArrayList<Node> openList = new ArrayList<>();
-        ArrayList<Node> closedList = new ArrayList<>();
-        Node current = new Node(startPose, 0, Geometry.pythagorean(targetPose.point, startPose.point), Geometry.pythagorean(targetPose.point, startPose.point), new Vector(0, 0));
-        while (!targetPose.point.equals(current.point)) {
-            for (Vector v : TEST_VECTORS) {
-                Point p = Geometry.add(current.point, v.toPoint());
-                if (fieldMap.checkObstacle(p)) { continue; }
-                boolean b = false;
-                for (int i = 0; i < closedList.size(); i++) {
-                    if (p.equals(closedList.get(i).point)) {
-                        b = true;
-                        break;
-                    }
-                }
-                if (b) { continue; }
-                for (int i = 0; i < openList.size(); i++) {
-                    if (p.equals(openList.get(i).point)) {
-                        if (fScore(current, targetPose.point, p) < openList.get(i).f) {
-                            openList.remove(i);
-                            openList.add(new Node(new Pose(p, startPose.angle), gScore(current, p), hScore(targetPose.point, p), fScore(current, targetPose.point, p), v));
-                        }
-                        b = true;
-                        break;
-                    }
-                }
-                if (b) { continue; }
-                openList.add(new Node(new Pose(p, startPose.angle), gScore(current, p), hScore(targetPose.point, p), fScore(current, targetPose.point, p), v));
-            }
-            int save = 0;
-            for (int i = 0; i < openList.size(); i++) { if (openList.get(i).f <= openList.get(save).f) { save = i; } }
-            current = openList.get(save);
-            closedList.add(current);
-            openList.remove(save);
-        }
-        return new ArrayList[]{openList, closedList};
-    }
 }

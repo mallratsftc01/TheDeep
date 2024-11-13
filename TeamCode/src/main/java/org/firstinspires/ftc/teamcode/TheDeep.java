@@ -56,6 +56,8 @@ public class TheDeep extends LinearOpMode {
 
     int deltaDiff = 0;
 
+    long lastPing;
+
     @Override
     public void runOpMode() throws InterruptedException {
         northEastMotor = hardwareMap.get(DcMotorEx.class, "northeastMotor");
@@ -103,6 +105,7 @@ public class TheDeep extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
+        lastPing = System.currentTimeMillis();
         while (opModeIsActive()) {
             controller1.update();
             controller2.update();
@@ -149,6 +152,9 @@ public class TheDeep extends LinearOpMode {
             packet.fieldOverlay()
                     .setFill("blue")
                     .fillCircle(odometry.getPose().point.x, odometry.getPose().point.y, 2);
+
+            packet.put("Ping Time", System.currentTimeMillis() - lastPing);
+            lastPing = System.currentTimeMillis();
 
             packet.put("X", odometry.getPose().point.x);
             packet.put("Y", odometry.getPose().point.y);
