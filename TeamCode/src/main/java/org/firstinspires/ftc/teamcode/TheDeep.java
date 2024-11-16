@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import epra.Controller;
 import epra.DriveTrain;
 import epra.IMUExpanded;
+import epra.MotorController;
 import epra.location.Odometry;
 import epra.location.Pose;
 import epra.math.geometry.Angle;
@@ -69,6 +70,12 @@ public class TheDeep extends LinearOpMode {
 
         horizontalArmMotor = hardwareMap.get(DcMotorEx.class, "horizontalMotor");
         verticalArmMotor = hardwareMap.get(DcMotorEx.class, "verticalMotor");
+        verticalArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        MotorController horizontalArm = new MotorController(horizontalArmMotor);
+        horizontalArm.tunePID(0.9, 0.0000001, 0.003);
+        MotorController verticalArm = new MotorController(verticalArmMotor);
+        verticalArm.tunePID(0.7, 0.0000005, 0.005);
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
         //horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
@@ -104,6 +111,8 @@ public class TheDeep extends LinearOpMode {
         dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        Config config = new Config();
+
         waitForStart();
         lastPing = System.currentTimeMillis();
         while (opModeIsActive()) {
@@ -125,14 +134,19 @@ public class TheDeep extends LinearOpMode {
 
             //arm code
 
-            horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
-            verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
+            //horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
+            //verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
+
+            verticalArm.tunePID(Config.K_P, Config.K_I, Config.K_D);
+            verticalArm.setTarget(Config.TARGET);
+            if (verticalArm.moveToTarget()) { verticalArm.resetPID(); }
+            verticalArm.log();
 
             //claw code
 
-            horizontalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.Y)) ? -1.0 : 1.0);
+            //horizontalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.Y)) ? -1.0 : 1.0);
             //horizontalWrist.setPosition((controller2.buttonToggleSingle(Controller.Key.A)) ? 1.0 : -1.0);
-            verticalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.UP)) ? 1.0 : -1.0);
+            //verticalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.UP)) ? 1.0 : -1.0);
 
             odometry.estimatePose();
 
@@ -156,7 +170,11 @@ public class TheDeep extends LinearOpMode {
             packet.put("Ping Time", System.currentTimeMillis() - lastPing);
             lastPing = System.currentTimeMillis();
 
-            packet.put("X", odometry.getPose().point.x);
+            packet.put("vertical Pos", verticalArm.getCurrentPosition());
+            packet.put("vertical Power", verticalArm.getPower());
+            packet.put("vertical Velocity", verticalArm.getVelocity());
+
+            /*packet.put("X", odometry.getPose().point.x);
             packet.put("Y", odometry.getPose().point.y);
             packet.put("Angle", odometry.getPose().angle.getDegree());
 
@@ -171,7 +189,7 @@ public class TheDeep extends LinearOpMode {
             packet.put("Phi", odometry.getPhi().getDegree());
 
             packet.put("Center Displacement", odometry.centerDisplacement());
-            packet.put("Perpendicular Displacement", odometry.perpendicularDisplacement());
+            packet.put("Perpendicular Displacement", odometry.perpendicularDisplacement());*/
 
             //packet.put("Current Angle: ", imuX.getYaw().getDegree());
             //packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
