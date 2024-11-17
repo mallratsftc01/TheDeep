@@ -73,9 +73,9 @@ public class TheDeep extends LinearOpMode {
         verticalArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         MotorController horizontalArm = new MotorController(horizontalArmMotor);
-        horizontalArm.tunePID(0.9, 0.0000001, 0.003);
+        horizontalArm.tuneTargetPID(0.9, 0.0000001, 0.003);
         MotorController verticalArm = new MotorController(verticalArmMotor);
-        verticalArm.tunePID(0.7, 0.0000005, 0.005);
+        verticalArm.tuneTargetPID(0.7, 0.0000005, 0.005);
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
         //horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
@@ -137,9 +137,9 @@ public class TheDeep extends LinearOpMode {
             //horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
             //verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
 
-            verticalArm.tunePID(Config.K_P, Config.K_I, Config.K_D);
+            verticalArm.tuneTargetPID(Config.K_P, Config.K_I, Config.K_D);
             verticalArm.setTarget(Config.TARGET);
-            if (verticalArm.moveToTarget()) { verticalArm.resetPID(); }
+            if (verticalArm.moveToTarget()) { verticalArm.resetTargetPID(); }
             verticalArm.log();
 
             //claw code
