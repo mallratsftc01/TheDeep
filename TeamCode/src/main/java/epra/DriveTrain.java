@@ -2,6 +2,7 @@ package epra;
 
 import androidx.annotation.NonNull;
 
+import epra.location.Pose;
 import epra.math.geometry.Geometry;
 import epra.math.geometry.Vector;
 
@@ -115,7 +116,8 @@ public class DriveTrain {
     private float gearRatio = 20;
 
     private Angle target = new Angle(0);
-    private PIDController anglePID;
+    private PIDController anglePID = new PIDController(1, 0, 0);
+    private PIDController pointPID = new PIDController(1, 0, 0);
 
     /**Coordinates motors in order to create cohesive robot motion.
      * This class can be used for a variable number of motors for several drive types.
@@ -132,7 +134,6 @@ public class DriveTrain {
             orientation.put(motorNames[i], orientations[i]);
         }
         driveType = DriveType.TANK;
-        anglePID = new PIDController(1, 0, 0);
     }
 
     /**Coordinates motors in order to create cohesive robot motion.
@@ -150,7 +151,6 @@ public class DriveTrain {
             orientation.put(motorNames[i], orientations[i]);
         }
         driveType = driveTypeIn;
-        anglePID = new PIDController(1, 0, 0);
     }
 
     /**
@@ -272,6 +272,22 @@ public class DriveTrain {
         if (Math.abs(rightPower) > 0.001) {
             fieldOrientedMecanumDrive(rightPower, vectorLeft, heading);
         } else {
+            fieldOrientedMecanumDrive(0, vectorLeft, heading);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Field Oriented holonomic drive with mecanum wheels. Uses PID loops to reach the target position. Created 11/27/2024.
+     * @param current The current position.
+     * @param target The target position.
+     * @return True if the robot has reached the target position, false if not.
+     *  */
+    public boolean posPIDMecanumDrive(Pose current, Pose target) {
+        Vector vectorLeft = pointPID.runPIDPoint(current.point, target.point);
+        Vector vectorRight = new Vector(1.0, target.angle);
+        if (vectorLeft.getLength() < 0.001 && fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle)) {
             mecanumDrive(0, 0, 0);
             return true;
         }
@@ -286,6 +302,16 @@ public class DriveTrain {
         anglePID.tuneP(k_p);
         anglePID.tuneI(k_i);
         anglePID.tuneD(k_d);
+    }
+
+    /**Tunes the PID loop used to reach the target position.
+     * @param k_p The P constant.
+     * @param k_i The I constant.
+     * @param k_d the D constant.*/
+    public void tunePointPID(double k_p, double k_i, double k_d) {
+        pointPID.tuneP(k_p);
+        pointPID.tuneI(k_i);
+        pointPID.tuneD(k_d);
     }
 
     /**Uses a drive based on the DriveTrain's drive type.
