@@ -114,7 +114,8 @@ public class DriveTrain {
     private float wheelCircumference = 11.2192926146f; // 96mm diameter wheels circumference in inches
     private float gearRatio = 20;
 
-    private Double targetDegrees = 0.0;
+    private Angle target = new Angle(0);
+    private PIDController anglePID;
 
     /**Coordinates motors in order to create cohesive robot motion.
      * This class can be used for a variable number of motors for several drive types.
@@ -131,6 +132,7 @@ public class DriveTrain {
             orientation.put(motorNames[i], orientations[i]);
         }
         driveType = DriveType.TANK;
+        anglePID = new PIDController(1, 0, 0);
     }
 
     /**Coordinates motors in order to create cohesive robot motion.
@@ -148,6 +150,7 @@ public class DriveTrain {
             orientation.put(motorNames[i], orientations[i]);
         }
         driveType = driveTypeIn;
+        anglePID = new PIDController(1, 0, 0);
     }
 
     /**
@@ -255,27 +258,27 @@ public class DriveTrain {
     public void fieldOrientedMecanumDrive(float powerRightX, Vector vectorLeft, Angle heading) {
         mecanumDrive(powerRightX, new Vector(vectorLeft.getLength(), Geometry.subtract(vectorLeft, heading)));
     }
+
     /**
-     * Holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Uses the IMU to facilitate more accurate turns. Created 11/22/2023.
-     * @param powerLeftX X position of the left joystick.
-     * @param powerLeftY Y position of the left joystick.
-     * @param vectorRight A vector representing the right joystick.
-     * @param imu IMU to find angles and use methods.
-     */
-    public double[] gyroMecanumDrive(float powerLeftX, float powerLeftY, Vector vectorRight, IMUExpanded imu) {
-        Angle current = imu.getYaw();
-        float rightPow = (float) (Geometry.direction(current, vectorRight) * Math.min(Geometry.subtract(current, vectorRight).getRadian(), 1.0f) * vectorRight.getLength());
-        mecanumDrive(rightPow, powerLeftX, powerLeftY);
-        return new double[] {rightPow, Geometry.direction(current, vectorRight), Geometry.subtract(current, vectorRight).getRadian()};
-    }
-    /**
-     * Holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Uses the IMU to facilitate more accurate turns. Created 11/22/2023.
+     * Field Oriented holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Created 11/26/2024.
      * @param vectorRight A vector representing the right joystick.
      * @param vectorLeft A vector representing the left joystick.
-     * @param imu IMU to find angles and use methods.
-     */
-    public double[] gyroMecanumDrive(Vector vectorRight, Vector vectorLeft, IMUExpanded imu) {
-        return gyroMecanumDrive((float) vectorLeft.toPoint().x, (float) vectorLeft.toPoint().y, vectorRight, imu);
+     * @param heading The angle of the robot relative to the field.
+     *  */
+    public void fieldOrientedMecanumDrive(Vector vectorRight, Vector vectorLeft, Angle heading) {
+        if (vectorRight.getLength() > 0.25) { target.setRadian(vectorRight.getRadian()); }
+        float rightPower = (float) anglePID.runPIDAngle(heading, target);
+        fieldOrientedMecanumDrive(rightPower, vectorLeft, heading);
+    }
+
+    /**Tunes the PID loop used to reach the target angle.
+     * @param k_p The P constant.
+     * @param k_i The I constant.
+     * @param k_d the D constant.*/
+    public void tuneAnglePID(double k_p, double k_i, double k_d) {
+        anglePID.tuneP(k_p);
+        anglePID.tuneI(k_i);
+        anglePID.tuneD(k_d);
     }
 
     /**Uses a drive based on the DriveTrain's drive type.

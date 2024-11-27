@@ -1,5 +1,8 @@
 package epra;
 
+import epra.math.geometry.Angle;
+import epra.math.geometry.Geometry;
+
 /**Handles the processes of a PID loop.
  *<p></p>
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
@@ -38,6 +41,27 @@ public class PIDController {
      * @return The outputted power of the PID loop.*/
     public double runPID(double current, double target) {
         double currentError = target - current;
+        if (saveError == 0) { saveError = currentError; }
+        long currentTime = System.currentTimeMillis();
+
+        p = k_p * currentError;
+        i += k_i * (currentError * (currentTime - saveTime));
+        if (Math.abs(i) > 1) { i = Math.signum(i); }
+        d = k_d * (currentError - saveError) / (currentTime - saveTime);
+
+        saveError = currentError;
+        saveTime = currentTime;
+
+        return p + i + d;
+    }
+
+    /**Runs one instance of a PID loop for an angle. This can be useful mostly in turning the robot to a target angle.
+     * @param current The current angle.
+     * @param target The targeted angle.
+     * @return The outputted power of the PID loop.*/
+    public double runPIDAngle(Angle current, Angle target) {
+        double currentError = Geometry.subtract(target, current).getRadian();
+        currentError -= (currentError > Math.PI) ? Math.PI * 2 : 0;
         if (saveError == 0) { saveError = currentError; }
         long currentTime = System.currentTimeMillis();
 
