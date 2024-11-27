@@ -2,6 +2,8 @@ package epra;
 
 import epra.math.geometry.Angle;
 import epra.math.geometry.Geometry;
+import epra.math.geometry.Point;
+import epra.math.geometry.Vector;
 
 /**Handles the processes of a PID loop.
  *<p></p>
@@ -55,7 +57,7 @@ public class PIDController {
         return p + i + d;
     }
 
-    /**Runs one instance of a PID loop for an angle. This can be useful mostly in turning the robot to a target angle.
+    /**Runs one instance of a PID loop for an angle. This can be useful for turning the robot to a target angle.
      * @param current The current angle.
      * @param target The targeted angle.
      * @return The outputted power of the PID loop.*/
@@ -74,6 +76,28 @@ public class PIDController {
         saveTime = currentTime;
 
         return p + i + d;
+    }
+
+    /**Runs one instance of a PID loop for a point. This can be useful for moving the robot to a target point.
+     * @param current The current position.
+     * @param target The targeted position.
+     * @return A vector of the outputted power and angle of the PID loop.*/
+    public Vector runPIDPoint(Point current, Point target) {
+        double currentError = Geometry.pythagorean(target, current);
+        Angle angle = Geometry.atan((target.y - current.y) / (target.x - current.x));
+        currentError -= (currentError > Math.PI) ? Math.PI * 2 : 0;
+        if (saveError == 0) { saveError = currentError; }
+        long currentTime = System.currentTimeMillis();
+
+        p = k_p * currentError;
+        i += k_i * (currentError * (currentTime - saveTime));
+        if (Math.abs(i) > 1) { i = Math.signum(i); }
+        d = k_d * (currentError - saveError) / (currentTime - saveTime);
+
+        saveError = currentError;
+        saveTime = currentTime;
+
+        return new Vector(p + i + d, angle);
     }
 
     /**Resets the PID loop and all the gains to 0.*/

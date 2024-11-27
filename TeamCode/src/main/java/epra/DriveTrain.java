@@ -264,11 +264,18 @@ public class DriveTrain {
      * @param vectorRight A vector representing the right joystick.
      * @param vectorLeft A vector representing the left joystick.
      * @param heading The angle of the robot relative to the field.
+     * @return True if the robot has reached the target angle, false if not.
      *  */
-    public void fieldOrientedMecanumDrive(Vector vectorRight, Vector vectorLeft, Angle heading) {
+    public boolean fieldOrientedMecanumDrive(Vector vectorRight, Vector vectorLeft, Angle heading) {
         if (vectorRight.getLength() > 0.25) { target.setRadian(vectorRight.getRadian()); }
         float rightPower = (float) anglePID.runPIDAngle(heading, target);
-        fieldOrientedMecanumDrive(rightPower, vectorLeft, heading);
+        if (Math.abs(rightPower) > 0.001) {
+            fieldOrientedMecanumDrive(rightPower, vectorLeft, heading);
+        } else {
+            mecanumDrive(0, 0, 0);
+            return true;
+        }
+        return false;
     }
 
     /**Tunes the PID loop used to reach the target angle.
