@@ -121,26 +121,21 @@ public class TheDeep extends LinearOpMode {
 
             //drive code
 
-            drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
-            /*try {
+            //drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
+            try {
                 drive.fieldOrientedMecanumDrive(
                         controller1.analogDeadband(Controller.Key.RIGHT_STICK_X),
-                        new Vector(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y)),
+                        controller1.analogDeadband(Controller.Stick.LEFT_STICK),
                         imuX.getYaw()
                 );
             } catch (Exception e) {
                 telemetry.addData("error", e);
-            }*/
+            }
 
             //arm code
 
             //horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
             //verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
-
-            verticalArm.tuneTargetPID(Config.K_P, Config.K_I, Config.K_D);
-            verticalArm.setTarget(Config.TARGET);
-            if (verticalArm.moveToTarget()) { verticalArm.resetTargetPID(); }
-            verticalArm.log();
 
             //claw code
 
@@ -159,7 +154,6 @@ public class TheDeep extends LinearOpMode {
                     ), true
             );*/
             telemetry.addData("gyro angle: ", imuX.getYaw().getDegree());
-            telemetry.addData("joystick angle: ", controller1.analogDeadband(Controller.Stick.LEFT_STICK).getDegree());
             telemetry.addData("up: ", controller2.getButton(Controller.Key.UP));
             telemetry.update();
 
@@ -170,15 +164,17 @@ public class TheDeep extends LinearOpMode {
             packet.put("Ping Time", System.currentTimeMillis() - lastPing);
             lastPing = System.currentTimeMillis();
 
-            packet.put("vertical Pos", verticalArm.getCurrentPosition());
-            packet.put("vertical Power", verticalArm.getPower());
-            packet.put("vertical Velocity", verticalArm.getVelocity());
-
-            /*packet.put("X", odometry.getPose().point.x);
+            packet.put("X", odometry.getPose().point.x);
             packet.put("Y", odometry.getPose().point.y);
             packet.put("Angle", odometry.getPose().angle.getDegree());
 
-            packet.put("Right Encoder", odometry.getPos(Odometry.Orientation.RIGHT));
+            packet.put("IMU yaw", imuX.getYaw().getDegree());
+            packet.put("Joystick x", controller1.analogDeadband(Controller.Stick.LEFT_STICK).toPoint().x);
+            packet.put("Joystick y", controller1.analogDeadband(Controller.Stick.LEFT_STICK).toPoint().y);
+            packet.put("angle in", controller1.analogDeadband(Controller.Stick.LEFT_STICK).getDegree());
+            packet.put("angle out", controller1.analogDeadband(Controller.Stick.LEFT_STICK).getDegree() - imuX.getYaw().getDegree());
+
+            /*packet.put("Right Encoder", odometry.getPos(Odometry.Orientation.RIGHT));
             packet.put("Left Encoder", odometry.getPos(Odometry.Orientation.LEFT));
             packet.put("Perpendicular Encoder", odometry.getPos(Odometry.Orientation.PERPENDICULAR));
 

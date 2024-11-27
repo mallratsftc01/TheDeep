@@ -253,7 +253,7 @@ public class DriveTrain {
      * @param heading The angle of the robot relative to the field.
      *  */
     public void fieldOrientedMecanumDrive(float powerRightX, Vector vectorLeft, Angle heading) {
-        mecanumDrive(powerRightX, Geometry.subtract(vectorLeft, heading));
+        mecanumDrive(powerRightX, new Vector(vectorLeft.getLength(), Geometry.subtract(vectorLeft, heading)));
     }
     /**
      * Holonomic drive with mecanum wheels. Left stick moves the robot, right stick X rotates the robot. Uses the IMU to facilitate more accurate turns. Created 11/22/2023.
