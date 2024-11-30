@@ -63,7 +63,8 @@ public class PIDController {
      * @return The outputted power of the PID loop.*/
     public double runPIDAngle(Angle current, Angle target) {
         double currentError = Geometry.subtract(target, current).getRadian();
-        currentError -= (currentError > Math.PI) ? Math.PI * 2 : 0;
+        currentError -= (currentError > Math.PI) ? Math.PI * 2: 0;
+        currentError *= -1.0;
         if (saveError == 0) { saveError = currentError; }
         long currentTime = System.currentTimeMillis();
 

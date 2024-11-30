@@ -53,6 +53,17 @@ public class Geometry {
     /**@param a The value whose arc tangent is to be returned.
      * @return The arc tangent of a value; the returned angle is in the range -pi/2 to pi/2.*/
     public static Angle atan(double a) { return new Angle((float) Math.atan(a)); }
+    /**Finds the angle of a vector from a point to (0,0). If the point is (0,0), will return an angle of 0.
+     * @param p The point whose arc tangent is to be returned.
+     * @return The arc tangent of a value; the returned angle is in the range -pi/2 to pi/2.*/
+    public static Angle atan(Point p) {
+        return new Angle (
+                (float) switch (p.quadrant()) {
+                    case 0 -> (p.x == 0) ? (p.y == 0) ? 0 : (p.y > 0) ? Math.PI / 2 : -1 * Math.PI / 2 : (p.x > 0) ? 0 : 3 * Math.PI;
+                    default -> Math.atan(p.y / p.x);
+            }
+        );
+    }
 
     /**@param point1 First point.
      * @param point2 Second point.

@@ -19,14 +19,14 @@ public class Vector extends Angle {
      * @param x
      * @param y*/
     public Vector(double x, double y) {
-        super((float) ((y < 0.0) ? Math.PI - Math.atan(x / y) : (y == 0.0) ? 0 : Math.atan(x / y)));
+        super((float) ((y < 0.0) ? Math.PI - Math.atan(x / y) : (y == 0.0) ? (x > 0) ? 0 : Math.PI : Math.atan(x / y)));
         this.length = Geometry.pythagorean(x, y);
     }
 
     /**Stores an length, theta vector.
      * @param point Point at the end of the vector.*/
     public Vector(Point point) {
-        super((float) ((point.y < 0.0) ? Math.PI - Math.atan(point.x / point.y) : (point.y == 0) ? 0 : Math.atan(point.x / point.y)));
+        super((float) ((point.y < 0.0) ? Math.PI - Math.atan(point.x / point.y) : (point.y == 0) ? (point.x > 0) ? 0 : Math.PI : Math.atan(point.x / point.y)));
         this.length = Geometry.pythagorean(point.x, point.y);
     }
 

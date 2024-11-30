@@ -85,6 +85,7 @@ public class TheDeep extends LinearOpMode {
         controller2 = new Controller (gamepad2, 0.05F);
 
         DriveTrain drive = new DriveTrain(new String[] {"north_west_motor", "north_east_motor", "south_west_motor", "south_east_motor"}, new DcMotorEx[] {northWestMotor, northEastMotor, southWestMotor, southEastMotor}, new DriveTrain.Orientation[] {DriveTrain.Orientation.LEFT_FRONT, DriveTrain.Orientation.RIGHT_FRONT, DriveTrain.Orientation.LEFT_BACK, DriveTrain.Orientation.RIGHT_BACK}, DriveTrain.DriveType.MECANUM);
+        drive.tuneAnglePID(1, 0.00025, 270);
 
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
@@ -122,15 +123,12 @@ public class TheDeep extends LinearOpMode {
             //drive code
 
             //drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
-            try {
-                drive.fieldOrientedMecanumDrive(
-                        controller1.analogDeadband(Controller.Key.RIGHT_STICK_X),
-                        controller1.analogDeadband(Controller.Stick.LEFT_STICK),
-                        imuX.getYaw()
-                );
-            } catch (Exception e) {
-                telemetry.addData("error", e);
-            }
+            drive.tuneAnglePID(Config.K_P, Config.K_I, Config.K_D);
+            double rightPow = drive.fieldOrientedMecanumDrive(
+                    new Vector(1.0, new Angle(Config.TARGET_ANGLE)),
+                    new Vector(0, 0),
+                    imuX.getYaw()
+            );
 
             //arm code
 
@@ -153,9 +151,6 @@ public class TheDeep extends LinearOpMode {
                             new Point(9.0, -9.0)
                     ), true
             );*/
-            telemetry.addData("gyro angle: ", imuX.getYaw().getDegree());
-            telemetry.addData("up: ", controller2.getButton(Controller.Key.UP));
-            telemetry.update();
 
             packet.fieldOverlay()
                     .setFill("blue")
@@ -169,10 +164,13 @@ public class TheDeep extends LinearOpMode {
             packet.put("Angle", odometry.getPose().angle.getDegree());
 
             packet.put("IMU yaw", imuX.getYaw().getDegree());
-            packet.put("Joystick x", controller1.analogDeadband(Controller.Stick.LEFT_STICK).toPoint().x);
-            packet.put("Joystick y", controller1.analogDeadband(Controller.Stick.LEFT_STICK).toPoint().y);
-            packet.put("angle in", controller1.analogDeadband(Controller.Stick.LEFT_STICK).getDegree());
-            packet.put("angle out", controller1.analogDeadband(Controller.Stick.LEFT_STICK).getDegree() - imuX.getYaw().getDegree());
+            packet.put("Right Pow", rightPow);
+            packet.put("target - heading", Geometry.subtract(new Angle(Config.TARGET_ANGLE), imuX.getYaw()).getDegree());
+
+            /*packet.put("Right Stick Angle", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
+            packet.put("Right Stick length", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getLength());
+            packet.put("Right Stick x", gamepad1.right_stick_x);
+            packet.put("Right Stick y", gamepad1.right_stick_y);*/
 
             /*packet.put("Right Encoder", odometry.getPos(Odometry.Orientation.RIGHT));
             packet.put("Left Encoder", odometry.getPos(Odometry.Orientation.LEFT));
