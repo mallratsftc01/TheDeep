@@ -85,8 +85,7 @@ public class PIDController {
      * @return A vector of the outputted power and angle of the PID loop.*/
     public Vector runPIDPoint(Point current, Point target) {
         double currentError = Geometry.pythagorean(target, current);
-        Angle angle = Geometry.atan((target.y - current.y) / (target.x - current.x));
-        currentError -= (currentError > Math.PI) ? Math.PI * 2 : 0;
+        Angle angle = Geometry.atan(new Point(-1 * (target.y - current.y), (target.x - current.x)));
         if (saveError == 0) { saveError = currentError; }
         long currentTime = System.currentTimeMillis();
 

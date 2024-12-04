@@ -86,6 +86,7 @@ public class TheDeep extends LinearOpMode {
 
         DriveTrain drive = new DriveTrain(new String[] {"north_west_motor", "north_east_motor", "south_west_motor", "south_east_motor"}, new DcMotorEx[] {northWestMotor, northEastMotor, southWestMotor, southEastMotor}, new DriveTrain.Orientation[] {DriveTrain.Orientation.LEFT_FRONT, DriveTrain.Orientation.RIGHT_FRONT, DriveTrain.Orientation.LEFT_BACK, DriveTrain.Orientation.RIGHT_BACK}, DriveTrain.DriveType.MECANUM);
         drive.tuneAnglePID(1, 0.00025, 270);
+        drive.tunePointPID(0.25, 0.00000001, 35);
 
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
@@ -120,15 +121,18 @@ public class TheDeep extends LinearOpMode {
             controller1.update();
             controller2.update();
 
+            odometry.estimatePose();
+
             //drive code
 
             //drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
-            drive.tuneAnglePID(Config.K_P, Config.K_I, Config.K_D);
-            double rightPow = drive.fieldOrientedMecanumDrive(
-                    new Vector(1.0, new Angle(Config.TARGET_ANGLE)),
-                    new Vector(0, 0),
-                    imuX.getYaw()
-            );
+            drive.tunePointPID(Config.K_P, Config.K_I, Config.K_D);
+            if (Config.ON) {
+                drive.posPIDMecanumDrive(
+                        odometry.getPose(),
+                        new Pose(new Point(Config.X, Config.Y), new Angle(Config.TARGET_ANGLE))
+                );
+            }
 
             //arm code
 
@@ -140,8 +144,6 @@ public class TheDeep extends LinearOpMode {
             //horizontalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.Y)) ? -1.0 : 1.0);
             //horizontalWrist.setPosition((controller2.buttonToggleSingle(Controller.Key.A)) ? 1.0 : -1.0);
             //verticalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.UP)) ? 1.0 : -1.0);
-
-            odometry.estimatePose();
 
             TelemetryPacket packet = new TelemetryPacket();
             /*odometry.drawPose(new Quadrilateral(
@@ -162,10 +164,6 @@ public class TheDeep extends LinearOpMode {
             packet.put("X", odometry.getPose().point.x);
             packet.put("Y", odometry.getPose().point.y);
             packet.put("Angle", odometry.getPose().angle.getDegree());
-
-            packet.put("IMU yaw", imuX.getYaw().getDegree());
-            packet.put("Right Pow", rightPow);
-            packet.put("target - heading", Geometry.subtract(new Angle(Config.TARGET_ANGLE), imuX.getYaw()).getDegree());
 
             /*packet.put("Right Stick Angle", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
             packet.put("Right Stick length", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getLength());

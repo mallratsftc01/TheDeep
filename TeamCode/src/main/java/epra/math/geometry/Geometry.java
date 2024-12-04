@@ -60,6 +60,8 @@ public class Geometry {
         return new Angle (
                 (float) switch (p.quadrant()) {
                     case 0 -> (p.x == 0) ? (p.y == 0) ? 0 : (p.y > 0) ? Math.PI / 2 : -1 * Math.PI / 2 : (p.x > 0) ? 0 : 3 * Math.PI;
+                    case 1, 4 -> Math.atan(p.y / p.x);
+                    case 2, 3 -> Math.atan(p.y / p.x) + Math.PI;
                     default -> Math.atan(p.y / p.x);
             }
         );

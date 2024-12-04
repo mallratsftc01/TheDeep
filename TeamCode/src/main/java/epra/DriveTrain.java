@@ -266,17 +266,16 @@ public class DriveTrain {
      * @param heading The angle of the robot relative to the field.
      * @return True if the robot has reached the target angle, false if not.
      *  */
-    public float fieldOrientedMecanumDrive(Vector vectorRight, Vector vectorLeft, Angle heading) {
+    public boolean fieldOrientedMecanumDrive(Vector vectorRight, Vector vectorLeft, Angle heading) {
         if (vectorRight.getLength() > 0.25) { target.setRadian(vectorRight.getRadian()); }
         float rightPower = (float) anglePID.runPIDAngle(heading, target);
         if (Math.abs(rightPower) > 0.001) {
             fieldOrientedMecanumDrive(rightPower, vectorLeft, heading);
         } else {
             fieldOrientedMecanumDrive(0, vectorLeft, heading);
-            //return true;
+            return true;
         }
-        return rightPower;
-        //return false;
+        return false;
     }
 
     /**
@@ -285,15 +284,16 @@ public class DriveTrain {
      * @param target The target position.
      * @return True if the robot has reached the target position, false if not.
      *  */
-    /*public boolean posPIDMecanumDrive(Pose current, Pose target) {
+    public boolean posPIDMecanumDrive(Pose current, Pose target) {
         Vector vectorLeft = pointPID.runPIDPoint(current.point, target.point);
         Vector vectorRight = new Vector(1.0, target.angle);
-        if (vectorLeft.getLength() < 0.001 && fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle)) {
+        boolean b = fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle);
+        if (vectorLeft.getLength() < 0.001 && b) {
             mecanumDrive(0, 0, 0);
             return true;
         }
         return false;
-    }*/
+    }
 
     /**Tunes the PID loop used to reach the target angle.
      * @param k_p The P constant.
