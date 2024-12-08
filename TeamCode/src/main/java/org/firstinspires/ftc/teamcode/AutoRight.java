@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import epra.Controller;
-import epra.DriveTrain;
+import epra.movement.DriveTrain;
 import epra.IMUExpanded;
 import epra.location.Odometry;
 import epra.location.Pose;

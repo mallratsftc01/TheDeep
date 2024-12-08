@@ -1,4 +1,4 @@
-package epra;
+package epra.movement;
 
 import epra.math.geometry.Angle;
 import epra.math.geometry.Geometry;

@@ -1,6 +1,4 @@
-package epra;
-
-import androidx.annotation.NonNull;
+package epra.movement;
 
 import epra.location.Pose;
 import epra.math.geometry.Geometry;
