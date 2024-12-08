@@ -2,9 +2,6 @@ package epra;
 
 import androidx.annotation.NonNull;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -375,18 +372,6 @@ public class PIDDriveTrain {
             default -> tankDrive(powerRightY, powerLeftY);
         }
         setMotorPowers();
-    }
-
-    /**Rotates to a target angle.
-     * @param imuIn An IMU to find the robot's angle.
-     * @param target Target angle in degrees.
-     * @return True if the robot has reached the angle, false otherwise.*/
-    public boolean rotateOnIMU(@NonNull BNO055IMU imuIn, float target) {
-        float d = target - imuIn.getAngularOrientation().thirdAngle;//d = difference between current and target (may be backwards)
-        d = (d >= 5.0f || d <= -5.0f) ? d : 0;//deadbands d to 5 degrees off
-        d = (d > 30.0f) ? 1.0f : d / 50;//if d > 30 d = 1, else d / 50
-        setDrivePower(d,0,  0, 0);
-        return (d == 0);//if d is 0, will return true
     }
 
     /**Drives the robot using the dPad. Do not use if using any other drive method.

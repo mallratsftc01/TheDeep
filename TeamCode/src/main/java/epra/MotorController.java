@@ -2,8 +2,6 @@ package epra;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import epra.math.statistics.RollingAverage;
-
 /**Gives increase control over DcMotorExs.
  *<p></p>
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
