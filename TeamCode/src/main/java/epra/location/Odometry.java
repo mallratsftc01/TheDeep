@@ -7,6 +7,7 @@ import epra.math.geometry.Point;
 import epra.math.geometry.Quadrilateral;
 import epra.math.geometry.Vector;
 import epra.math.statistics.RollingAverage;
+import epra.movement.MotorController;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -37,7 +38,7 @@ public class Odometry {
 
     public enum Orientation { LEFT, RIGHT, PERPENDICULAR }
 
-    private Map<Orientation, DcMotorEx> encoder = new HashMap<>();
+    private Map<Orientation, MotorController> encoder = new HashMap<>();
     private Map<Orientation, Integer> start = new HashMap<>();
     private Map<Orientation, Point> displacement = new HashMap<>();
     private Map<Orientation, Integer> pos = new HashMap<>();
@@ -66,7 +67,7 @@ public class Odometry {
      * @param imu The imu.
      * @param startPose The starting pose of the robot on the field.
      * */
-    public Odometry(DcMotorEx leftEncoder, DcMotorEx rightEncoder, DcMotorEx perpendicularEncoder, Point displacementLeft, Point displacementRight, Point displacementPerpendicular, IMUExpanded imu, Pose startPose) {
+    public Odometry(MotorController leftEncoder, MotorController rightEncoder, MotorController perpendicularEncoder, Point displacementLeft, Point displacementRight, Point displacementPerpendicular, IMUExpanded imu, Pose startPose) {
         encoder.put(Orientation.LEFT, leftEncoder);
         encoder.put(Orientation.RIGHT, rightEncoder);
         encoder.put(Orientation.PERPENDICULAR, perpendicularEncoder);
@@ -80,10 +81,10 @@ public class Odometry {
         pose = startPose;
         this.startPose = startPose;
 
-        for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
+        for (Map.Entry<Orientation, MotorController> entry : encoder.entrySet()) {
             pos.put(entry.getKey(), entry.getValue().getCurrentPosition() - start.get(entry.getKey()));
         }
-        for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
+        for (Map.Entry<Orientation, MotorController> entry : encoder.entrySet()) {
             delta.put(entry.getKey(), (entry.getValue().getCurrentPosition() - start.get(entry.getKey())) - pos.get(entry.getKey()));
         }
         saveTime = System.currentTimeMillis();
@@ -91,7 +92,7 @@ public class Odometry {
 
     /**Updates the delta and pos save of the encoders.*/
     public void updateDeltaPos() {
-        for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
+        for (Map.Entry<Orientation, MotorController> entry : encoder.entrySet()) {
             int current = entry.getValue().getCurrentPosition();
             delta.replace(entry.getKey(), current - start.get(entry.getKey()) - pos.get(entry.getKey()));
             pos.replace(entry.getKey(), current - start.get(entry.getKey()));
@@ -201,7 +202,7 @@ public class Odometry {
                 .fillPolygon(new double[] {acceleration.x, velocity.x}, new double[] {acceleration.y, velocity.y});
         if (drawOdometers) {
             //draw odometer velocities
-            for (Map.Entry<Orientation, DcMotorEx> entry : encoder.entrySet()) {
+            for (Map.Entry<Orientation, MotorController> entry : encoder.entrySet()) {
                 Point start = Geometry.add(pose.point, displacement.get(entry.getKey()));
                 Vector velo = new Vector(delta.get(entry.getKey()), Geometry.add(pose.angle, (entry.getKey() == Orientation.PERPENDICULAR) ? new Angle(90.0) : new Angle()));
                 Point end = Geometry.add(start, velo.toPoint());

@@ -91,7 +91,7 @@ public class DriveTrain {
     /**
      * Map of all the motors.
      */
-    private Map<String, DcMotorEx> motor = new HashMap<>();
+    private Map<String, MotorController> motor = new HashMap<>();
     /**
      * Map of all the motor powers.
      */
@@ -120,7 +120,7 @@ public class DriveTrain {
      * @param motors       DcMotorExs that will be used by the DriveTrain.
      * @param orientations The orientation of each motor.
      */
-    public DriveTrain(String[] motorNames, DcMotorEx[] motors, Orientation[] orientations) {
+    public DriveTrain(String[] motorNames, MotorController[] motors, Orientation[] orientations) {
         for (int i = 0; i < Math.min(motorNames.length, motors.length); i++) {
             motor.put(motorNames[i], motors[i]);
             power.put(motorNames[i], 0.0);
@@ -137,7 +137,7 @@ public class DriveTrain {
      * @param orientations The orientation of each motor.
      * @param driveTypeIn  The drive type to be used.
      */
-    public DriveTrain(String[] motorNames, DcMotorEx[] motors, Orientation[] orientations, DriveType driveTypeIn) {
+    public DriveTrain(String[] motorNames, MotorController[] motors, Orientation[] orientations, DriveType driveTypeIn) {
         for (int i = 0; i < Math.min(motorNames.length, motors.length); i++) {
             motor.put(motorNames[i], motors[i]);
             power.put(motorNames[i], 0.0);
@@ -355,7 +355,7 @@ public class DriveTrain {
 
     /**Updates all the pos values in the pos map.*/
     public void updatePos() {
-        for (Map.Entry<String, DcMotorEx> entry : motor.entrySet()) {
+        for (Map.Entry<String, MotorController> entry : motor.entrySet()) {
             pos.replace(entry.getKey(), entry.getValue().getCurrentPosition());
         }
     }
@@ -378,7 +378,7 @@ public class DriveTrain {
     /**@return The vector of motion of the DriveTrain as a combination of the vectors of motion of all the motors.*/
     public Vector driveTrainVector() {
         Vector v = new Vector(0, 0);
-        for (Map.Entry<String, DcMotorEx> entry : motor.entrySet()) {
+        for (Map.Entry<String, MotorController> entry : motor.entrySet()) {
             v = Geometry.add(v, motorVector(entry.getKey()));
         }
         return v;

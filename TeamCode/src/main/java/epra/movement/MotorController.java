@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
 public class MotorController {
 
-    private DcMotorEx motor;
+    private Motor motor;
 
     private double velocity;
     private int savePos;
@@ -21,7 +21,7 @@ public class MotorController {
     private double targetVelocity;
     /**Gives increase control over DcMotorExs.
      *@param motor The motor to be used by this MotorController.*/
-    public MotorController(DcMotorEx motor) {
+    public MotorController(Motor motor) {
         this.motor = motor;
         velocity = 0;
         startPos = motor.getCurrentPosition();

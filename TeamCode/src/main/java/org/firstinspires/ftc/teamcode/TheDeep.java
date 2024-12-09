@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import epra.Controller;
 import epra.movement.DriveTrain;
 import epra.IMUExpanded;
+import epra.movement.Motor;
 import epra.movement.MotorController;
+import epra.movement.DcMotorExFrame;
 import epra.location.Odometry;
 import epra.location.Pose;
 import epra.math.geometry.Angle;
@@ -27,13 +29,13 @@ public class TheDeep extends LinearOpMode {
     private final Point LEFT_ENCODER = new Point(-8.0, 3.0);
     private final Point RIGHT_ENCODER = new Point(8.0, 3.0);
 
-    private DcMotorEx northEastMotor;
-    private DcMotorEx southEastMotor;
-    private DcMotorEx southWestMotor;
-    private DcMotorEx northWestMotor;
+    private MotorController northEastMotor;
+    private MotorController southEastMotor;
+    private MotorController southWestMotor;
+    private MotorController northWestMotor;
 
-    private DcMotorEx horizontalArmMotor;
-    private DcMotorEx verticalArmMotor;
+    private MotorController horizontalArmMotor;
+    private MotorController verticalArmMotor;
 
     private Servo horizontalClaw;
     private Servo horizontalWrist;
@@ -56,21 +58,26 @@ public class TheDeep extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        northEastMotor = hardwareMap.get(DcMotorEx.class, "northeastMotor");
-        northWestMotor = hardwareMap.get(DcMotorEx.class, "northwestMotor");
-        southEastMotor = hardwareMap.get(DcMotorEx.class, "southeastMotor");
-        southWestMotor = hardwareMap.get(DcMotorEx.class, "southwestMotor");
-        southWestMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        southEastMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        DcMotorExFrame neMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "northeastMotor"));
+        DcMotorExFrame nwMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "northwestMotor"));
+        DcMotorExFrame seMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "southeastMotor"));
+        DcMotorExFrame swMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "southwestMotor"));
+        swMotor.setDirection(Motor.Direction.REVERSE);
+        seMotor.setDirection(Motor.Direction.REVERSE);
 
-        horizontalArmMotor = hardwareMap.get(DcMotorEx.class, "horizontalMotor");
-        verticalArmMotor = hardwareMap.get(DcMotorEx.class, "verticalMotor");
-        verticalArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        northEastMotor = new MotorController(neMotor);
+        northWestMotor = new MotorController(nwMotor);
+        southEastMotor = new MotorController(seMotor);
+        southWestMotor = new MotorController(swMotor);
 
-        MotorController horizontalArm = new MotorController(horizontalArmMotor);
-        horizontalArm.tuneTargetPID(0.9, 0.0000001, 0.003);
-        MotorController verticalArm = new MotorController(verticalArmMotor);
-        verticalArm.tuneTargetPID(0.7, 0.0000005, 0.005);
+        DcMotorExFrame haMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalMotor"));
+        DcMotorExFrame vaMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "verticalMotor"));
+        vaMotor.setDirection(Motor.Direction.REVERSE);
+
+        horizontalArmMotor = new MotorController(haMotor);
+        horizontalArmMotor.tuneTargetPID(0.9, 0.0000001, 0.003);
+        verticalArmMotor = new MotorController(vaMotor);
+        verticalArmMotor.tuneTargetPID(0.7, 0.0000005, 0.005);
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
         //horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
@@ -79,7 +86,7 @@ public class TheDeep extends LinearOpMode {
         controller1 = new Controller (gamepad1, 0.05F);
         controller2 = new Controller (gamepad2, 0.05F);
 
-        DriveTrain drive = new DriveTrain(new String[] {"north_west_motor", "north_east_motor", "south_west_motor", "south_east_motor"}, new DcMotorEx[] {northWestMotor, northEastMotor, southWestMotor, southEastMotor}, new DriveTrain.Orientation[] {DriveTrain.Orientation.LEFT_FRONT, DriveTrain.Orientation.RIGHT_FRONT, DriveTrain.Orientation.LEFT_BACK, DriveTrain.Orientation.RIGHT_BACK}, DriveTrain.DriveType.MECANUM);
+        DriveTrain drive = new DriveTrain(new String[] {"north_west_motor", "north_east_motor", "south_west_motor", "south_east_motor"}, new MotorController[] {northWestMotor, northEastMotor, southWestMotor, southEastMotor}, new DriveTrain.Orientation[] {DriveTrain.Orientation.LEFT_FRONT, DriveTrain.Orientation.RIGHT_FRONT, DriveTrain.Orientation.LEFT_BACK, DriveTrain.Orientation.RIGHT_BACK}, DriveTrain.DriveType.MECANUM);
         drive.tuneAnglePID(1, 0.00025, 270);
         drive.tunePointPID(0.25, 0.00000001, 35);
 
