@@ -267,6 +267,7 @@ public class DriveTrain {
             fieldOrientedMecanumDrive(rightPower, vectorLeft, heading);
         } else {
             fieldOrientedMecanumDrive(0, vectorLeft, heading);
+            anglePID.reset();
             return true;
         }
         return false;
@@ -284,6 +285,7 @@ public class DriveTrain {
         boolean b = fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle);
         if (vectorLeft.getLength() < 0.001 && b) {
             mecanumDrive(0, 0, 0);
+            pointPID.reset();
             return true;
         }
         return false;

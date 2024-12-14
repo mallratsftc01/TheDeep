@@ -76,6 +76,7 @@ public class MotorController {
             return false;
         } else {
             stop();
+            resetTargetPID();
             return true;
         }
     }
@@ -105,6 +106,7 @@ public class MotorController {
             return false;
         } else {
             stop();
+            resetVelocityPID();
             return true;
         }
     }

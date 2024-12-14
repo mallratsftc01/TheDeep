@@ -25,10 +25,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class TheDeep extends LinearOpMode {
-
-    private final Point LEFT_ENCODER = new Point(-8.0, 3.0);
-    private final Point RIGHT_ENCODER = new Point(8.0, 3.0);
-
     private MotorController northEastMotor;
     private MotorController southEastMotor;
     private MotorController southWestMotor;
