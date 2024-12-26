@@ -1,7 +1,5 @@
 package epra.movement;
 
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-
 /**Gives increase control over DcMotorExs.
  *<p></p>
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
@@ -68,14 +66,16 @@ public class MotorController {
      * @param target The position for the motor to try to move to in motor-specific ticks.*/
     public void setTarget(int target) { targetPosition = target; }
     /**Moves the motor towards the set target.
+     * @param tolerance The tolerance for reaching the target as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely. If set to 1.0 the pid will immediately end.
+     * @param haltAtTarget If true the motor will halt once the target is reached within the set tolerance.
      * @return True once the motor reaches its target, false until then.*/
-    public boolean moveToTarget() {
+    public boolean moveToTarget(double tolerance, boolean haltAtTarget) {
         double power = pidT.runPID(getCurrentPosition(), targetPosition);
-        if (Math.abs(power) > 0.001) {
+        if (Math.abs(power) > tolerance) {
             setPower(power);
             return false;
         } else {
-            stop();
+            if (haltAtTarget) { stop(); }
             resetTargetPID();
             return true;
         }
@@ -101,12 +101,10 @@ public class MotorController {
      * @return True once the motor reaches its target, false until then.*/
     public boolean maintainVelocity() {
         double power = pidV.runPID(getVelocity(), targetVelocity);
-        if (Math.abs(power) > 0.001) {
-            setPower(power);
+        setPower(power);
+        if (Math.abs(targetVelocity - getVelocity()) > 0.001) {
             return false;
         } else {
-            stop();
-            resetVelocityPID();
             return true;
         }
     }

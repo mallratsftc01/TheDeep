@@ -124,13 +124,6 @@ public class TheDeep extends LinearOpMode {
             //drive code
 
             //drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
-            drive.tunePointPID(Config.K_P, Config.K_I, Config.K_D);
-            if (Config.ON) {
-                drive.posPIDMecanumDrive(
-                        odometry.getPose(),
-                        new Pose(new Point(Config.X, Config.Y), new Angle(Config.TARGET_ANGLE))
-                );
-            }
 
             //arm code
 

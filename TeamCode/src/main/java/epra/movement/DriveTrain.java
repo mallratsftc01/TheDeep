@@ -4,8 +4,6 @@ import epra.location.Pose;
 import epra.math.geometry.Geometry;
 import epra.math.geometry.Vector;
 
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-
 import java.util.Set;
 
 import java.util.HashMap;
@@ -258,15 +256,17 @@ public class DriveTrain {
      * @param vectorRight A vector representing the right joystick.
      * @param vectorLeft A vector representing the left joystick.
      * @param heading The angle of the robot relative to the field.
+     * @param angleTolerance The tolerance for reaching the target angle as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely. If set to 1.0 the pid will immediately end.
+     * @param haltAtTarget If true the motors will halt once the target is reached within the set tolerance.
      * @return True if the robot has reached the target angle, false if not.
      *  */
-    public boolean fieldOrientedMecanumDrive(Vector vectorRight, Vector vectorLeft, Angle heading) {
+    public boolean fieldOrientedMecanumDrive(Vector vectorRight, Vector vectorLeft, Angle heading, double angleTolerance, boolean haltAtTarget) {
         if (vectorRight.getLength() > 0.25) { target.setRadian(vectorRight.getRadian()); }
         float rightPower = (float) anglePID.runPIDAngle(heading, target);
-        if (Math.abs(rightPower) > 0.001) {
+        if (Math.abs(rightPower) > angleTolerance) {
             fieldOrientedMecanumDrive(rightPower, vectorLeft, heading);
         } else {
-            fieldOrientedMecanumDrive(0, vectorLeft, heading);
+            if (haltAtTarget) { fieldOrientedMecanumDrive(0, vectorLeft, heading); }
             anglePID.reset();
             return true;
         }
@@ -277,14 +277,17 @@ public class DriveTrain {
      * Field Oriented holonomic drive with mecanum wheels. Uses PID loops to reach the target position. Created 11/27/2024.
      * @param current The current position.
      * @param target The target position.
+     * @param posTolerance The tolerance for reaching the target position as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely. If set to 1.0 the pid will immediately end.
+     * @param angleTolerance The tolerance for reaching the target angle as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely. If set to 1.0 the pid will immediately end.
+     * @param haltAtTarget If true the motors will halt once the target is reached within the set tolerance.
      * @return True if the robot has reached the target position, false if not.
      *  */
-    public boolean posPIDMecanumDrive(Pose current, Pose target) {
+    public boolean posPIDMecanumDrive(Pose current, Pose target, double posTolerance, double angleTolerance, boolean haltAtTarget) {
         Vector vectorLeft = pointPID.runPIDPoint(current.point, target.point);
         Vector vectorRight = new Vector(1.0, target.angle);
-        boolean b = fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle);
-        if (vectorLeft.getLength() < 0.001 && b) {
-            mecanumDrive(0, 0, 0);
+        boolean b = fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle, angleTolerance, haltAtTarget);
+        if (vectorLeft.getLength() <= posTolerance && b) {
+            if (haltAtTarget) { mecanumDrive(0, 0, 0); }
             pointPID.reset();
             return true;
         }
