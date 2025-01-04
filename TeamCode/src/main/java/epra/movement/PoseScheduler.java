@@ -24,6 +24,9 @@ public class PoseScheduler {
     public PoseScheduler(DriveTrain driveTrain, Odometry odometry) {
         this.drive = driveTrain;
         this.odometry = odometry;
+        directions = new ArrayList<>();
+        pos_tol = new ArrayList<>();
+        ang_tol = new ArrayList<>();
     }
 
     /**Adds a step to the scheduler's list of directions.
@@ -45,15 +48,18 @@ public class PoseScheduler {
 
     /**Runs the current step, moving the DriveTrain to that Pose.
      * @return True if the target Pose is reached or if there are no steps in the scheduler's list of directions.*/
-    public boolean runStep() {
+    public boolean runStep(DriveTrain driveTrain) {
         if (directions.isEmpty()) { return true; }
-        else { return drive.posPIDMecanumDrive(odometry.getPose(), directions.get(0), pos_tol.get(0), ang_tol.get(0), (directions.size() == 1)); }
+        else { return driveTrain.posPIDMecanumDrive(odometry.getPose(), directions.get(0), pos_tol.get(0), ang_tol.get(0), (true)); }
     }
 
     /**Advances the directions by one step.
      * @return False if the list of directions has no steps remaining after advancing.*/
     public boolean nextStep() {
-        directions.remove(0);
+        if (!directions.isEmpty()) { directions.remove(0); }
         return !directions.isEmpty();
     }
+
+    /**@return The number of steps remaining in the pose scheduler.*/
+    public int stepsRemaining() { return directions.size(); }
 }

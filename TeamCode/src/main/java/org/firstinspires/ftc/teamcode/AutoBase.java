@@ -7,6 +7,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,15 +28,14 @@ import epra.movement.DcMotorExFrame;
 import epra.movement.DriveTrain;
 import epra.movement.Motor;
 import epra.movement.MotorController;
-import epra.movement.PoseScheduler;
 
 @Autonomous
 public class AutoBase extends LinearOpMode {
 
     private final long LOOP_TIME = 27 * 1000;
 
-    private final String JSON_FILE_NAME = "test.json";
-    private final String END_JSON_FILE_NAME = "end.json";
+    private final String JSON_FILE_NAME = "auto_test.json";
+    private final String END_JSON_FILE_NAME = "test.json";
 
     private MotorController northEastMotor;
     private MotorController southEastMotor;
@@ -53,12 +58,11 @@ public class AutoBase extends LinearOpMode {
 
     private Odometry odometry;
 
-    private PoseScheduler poseScheduler;
     ArrayList<String> filenames;
     ArrayList<Step> steps;
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         DcMotorExFrame neMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "northeastMotor"));
         DcMotorExFrame nwMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "northwestMotor"));
         DcMotorExFrame seMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "southeastMotor"));
@@ -102,9 +106,11 @@ public class AutoBase extends LinearOpMode {
         //imu2.initialize(new IMU.Parameters(orientationOnRobot));
         imuX = new IMUExpanded(imu1);
 
+        filenames = new ArrayList<>();
+        steps = new ArrayList<>();
         filenames.addAll(Arrays.asList(JSONReader.readAuto(JSON_FILE_NAME)));
         steps.addAll(Arrays.asList(JSONReader.readSteps(filenames.get(0))));
-        filenames.remove(0);
+
 
         odometry = new Odometry(northWestMotor, southWestMotor, northEastMotor,
                 new Point(7.92784216, 3.75),
@@ -115,24 +121,17 @@ public class AutoBase extends LinearOpMode {
         );
         steps.remove(0);
 
-        poseScheduler = new PoseScheduler(drive, odometry);
+        filenames.remove(0);
 
         waitForStart();
         long startTime = System.currentTimeMillis();
         long saveTime = startTime;
-        while (System.currentTimeMillis() - startTime < LOOP_TIME && !filenames.isEmpty()) {
+        while (System.currentTimeMillis() - startTime < LOOP_TIME && (!filenames.isEmpty() || !steps.isEmpty())) {
+            odometry.estimatePose();
+
             if (steps.isEmpty()) {
                 steps.addAll(Arrays.asList(JSONReader.readSteps(filenames.get(0))));
                 filenames.remove(0);
-                Pose[] pose = new Pose[steps.size()];
-                double[] pTol = new double[steps.size()];
-                double[] aTol = new double[steps.size()];
-                for (int i = 0; i < steps.size(); i++) {
-                    pose[i] = steps.get(i).getPose();
-                    pTol[i] = steps.get(i).pos_tolerance;
-                    aTol[i] = steps.get(i).angle_tolerance;
-                }
-                poseScheduler.addStep(pose, pTol, aTol);
                 saveTime = System.currentTimeMillis();
             }
 
@@ -140,41 +139,43 @@ public class AutoBase extends LinearOpMode {
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
             horizontalClaw.setPosition(steps.get(0).input);
             verticalClaw.setPosition(steps.get(0).output);
+            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, true);
 
-            if (poseScheduler.runStep()
+            if (atPose
                     && verticalArmMotor.moveToTarget(steps.get(0).lift_tolerance, steps.size() == 1)
                     && horizontalArmMotor.moveToTarget(steps.get(0).arm_tolerance, steps.size() == 1)
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
-                poseScheduler.nextStep();
                 saveTime = System.currentTimeMillis();
             }
+
+            telemetry.addData("Paths Remaining: ", filenames.size());
+            telemetry.addData("Steps Remaining in Path: ", steps.size());
+            telemetry.addData("At Pose: ", atPose);
+            telemetry.addData("X Target: ", steps.get(0).getPose().point.x);
+            telemetry.addData("Y Target: ", steps.get(0).getPose().point.y);
+            telemetry.addData("X Pose: ", odometry.getPose().point.x);
+            telemetry.addData("Y Pose: ", odometry.getPose().point.y);
+            telemetry.update();
         }
 
         steps.addAll(Arrays.asList(JSONReader.readSteps(END_JSON_FILE_NAME)));
-        Pose[] pose = new Pose[steps.size()];
-        double[] pTol = new double[steps.size()];
-        double[] aTol = new double[steps.size()];
-        for (int i = 0; i < steps.size(); i++) {
-            pose[i] = steps.get(i).getPose();
-            pTol[i] = steps.get(i).pos_tolerance;
-            aTol[i] = steps.get(i).angle_tolerance;
-        }
-        poseScheduler.addStep(pose, pTol, aTol);
         saveTime = System.currentTimeMillis();
 
         while (System.currentTimeMillis() - startTime < 30000 && !steps.isEmpty()) {
+            odometry.estimatePose();
+
             verticalArmMotor.setTarget((int) steps.get(0).lift_target);
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
             horizontalClaw.setPosition(steps.get(0).input);
             verticalClaw.setPosition(steps.get(0).output);
+            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, true);
 
-            if (poseScheduler.runStep()
+            if (atPose
                     && verticalArmMotor.moveToTarget(steps.get(0).lift_tolerance, steps.size() == 1)
                     && horizontalArmMotor.moveToTarget(steps.get(0).arm_tolerance, steps.size() == 1)
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
-                poseScheduler.nextStep();
                 saveTime = System.currentTimeMillis();
             }
         }
