@@ -66,7 +66,7 @@ public class MotorController {
      * @param target The position for the motor to try to move to in motor-specific ticks.*/
     public void setTarget(int target) { targetPosition = target; }
     /**Moves the motor towards the set target.
-     * @param tolerance The tolerance for reaching the target as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely. If set to 1.0 the pid will immediately end.
+     * @param tolerance The tolerance for reaching the target as a double. If this is set to 0.0 the pid will run indefinitely.
      * @param haltAtTarget If true the motor will halt once the target is reached within the set tolerance.
      * @return True once the motor reaches its target, false until then.*/
     public boolean moveToTarget(double tolerance, boolean haltAtTarget) {

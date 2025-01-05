@@ -256,7 +256,7 @@ public class DriveTrain {
      * @param vectorRight A vector representing the right joystick.
      * @param vectorLeft A vector representing the left joystick.
      * @param heading The angle of the robot relative to the field.
-     * @param angleTolerance The tolerance for reaching the target angle as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely. If set to 1.0 the pid will immediately end.
+     * @param angleTolerance The tolerance for reaching the target angle as a positive double. If this is set to 0.0 the pid will run indefinitely.
      * @param haltAtTarget If true the motors will halt once the target is reached within the set tolerance.
      * @return True if the robot has reached the target angle, false if not.
      *  */
@@ -277,8 +277,8 @@ public class DriveTrain {
      * Field Oriented holonomic drive with mecanum wheels. Uses PID loops to reach the target position. Created 11/27/2024.
      * @param current The current position.
      * @param target The target position.
-     * @param posTolerance The tolerance for reaching the target position as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely. If set to 1.0 the pid will immediately end.
-     * @param angleTolerance The tolerance for reaching the target angle as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely. If set to 1.0 the pid will immediately end.
+     * @param posTolerance The tolerance for reaching the target position as a positive double. If this is set to 0.0 the pid will run indefinitely.
+     * @param angleTolerance The tolerance for reaching the target angle as a positive double. If this is set to 0.0 the pid will run indefinitely.
      * @param haltAtTarget If true the motors will halt once the target is reached within the set tolerance.
      * @return True if the robot has reached the target position, false if not.
      *  */
