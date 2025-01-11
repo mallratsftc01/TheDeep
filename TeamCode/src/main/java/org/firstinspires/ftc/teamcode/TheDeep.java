@@ -128,7 +128,7 @@ public class TheDeep extends LinearOpMode {
             //arm code
 
             //horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
-            //verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
+            verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
 
             //claw code
 
@@ -156,6 +156,9 @@ public class TheDeep extends LinearOpMode {
             packet.put("Y", odometry.getPose().point.y);
             packet.put("Angle", odometry.getPose().angle.getDegree());
 
+            packet.put("Lift Pos", verticalArmMotor.getCurrentPosition());
+            telemetry.addData("Lift Pos: ", verticalArmMotor.getCurrentPosition());
+
             /*packet.put("Right Stick Angle", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
             packet.put("Right Stick length", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getLength());
             packet.put("Right Stick x", gamepad1.right_stick_x);
@@ -178,6 +181,7 @@ public class TheDeep extends LinearOpMode {
             //packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
             //packet.put("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
             dashboard.sendTelemetryPacket(packet);
+            telemetry.update();
         }
     }
 }

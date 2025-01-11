@@ -2,6 +2,7 @@ package epra.movement;
 
 import epra.location.Pose;
 import epra.math.geometry.Geometry;
+import epra.math.geometry.Point;
 import epra.math.geometry.Vector;
 
 import java.util.Set;
@@ -108,6 +109,9 @@ public class DriveTrain {
     private float gearRatio = 20;
 
     private Angle target = new Angle(0);
+    private Pose targetPose = new Pose(new Point(0,0), new Angle(0.0));
+    private Pose lastTargetPose = new Pose(new Point(0,0), new Angle(0.0));
+    private double toleranceMultiplier = 1.0;
     private PIDController anglePID = new PIDController(1, 0, 0);
     private PIDController pointPID = new PIDController(1, 0, 0);
 
@@ -273,26 +277,39 @@ public class DriveTrain {
         return false;
     }
 
+    /**Sets the target Pose of the PID. When running posPIDMecanumDrive the DriveTrain will attempt to move the robot to this position.
+     * @param target Pose to test the target to.*/
+    public void setTargetPose(Pose target) {
+        if (target.point.x != targetPose.point.x || target.point.y != targetPose.point.y || target.angle.getDegree() != targetPose.angle.getDegree()) {
+            lastTargetPose = targetPose;
+            targetPose = target;
+        }
+    }
+
     /**
-     * Field Oriented holonomic drive with mecanum wheels. Uses PID loops to reach the target position. Created 11/27/2024.
+     * Field Oriented holonomic drive with mecanum wheels. Uses PID loops to reach the target position set. Created 11/27/2024.
      * @param current The current position.
-     * @param target The target position.
-     * @param posTolerance The tolerance for reaching the target position as a positive double. If this is set to 0.0 the pid will run indefinitely.
+     * @param posTolerance The tolerance for reaching the target position as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely.
      * @param angleTolerance The tolerance for reaching the target angle as a positive double. If this is set to 0.0 the pid will run indefinitely.
      * @param haltAtTarget If true the motors will halt once the target is reached within the set tolerance.
      * @return True if the robot has reached the target position, false if not.
      *  */
-    public boolean posPIDMecanumDrive(Pose current, Pose target, double posTolerance, double angleTolerance, boolean haltAtTarget) {
-        Vector vectorLeft = pointPID.runPIDPoint(current.point, target.point);
-        Vector vectorRight = new Vector(1.0, target.angle);
+    public boolean posPIDMecanumDrive(Pose current, double posTolerance, double angleTolerance, boolean haltAtTarget) {
+        Vector vectorLeft = pointPID.runPIDPoint(current.point, targetPose.point);
+        Vector vectorRight = new Vector(1.0, targetPose.angle);
         boolean b = fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle, angleTolerance, haltAtTarget);
-        if (vectorLeft.getLength() <= posTolerance && b) {
+        if (Math.abs(vectorLeft.getLength()) <= getAbsolutePosTolerance(posTolerance) && b) {
             if (haltAtTarget) { mecanumDrive(0, 0, 0); }
             pointPID.reset();
             return true;
         }
         return false;
     }
+
+    /**Finds the true tolerance to compare to the pos PID loop.
+     * @param posTolerance A tolerance value between 0.0 and 1.0.
+     * @return The true pos tolerance value.*/
+    public double getAbsolutePosTolerance(double posTolerance) { return Math.abs(posTolerance * Geometry.pythagorean(targetPose.point, lastTargetPose.point) * toleranceMultiplier); }
 
     /**Tunes the PID loop used to reach the target angle.
      * @param k_p The P constant.
@@ -312,6 +329,7 @@ public class DriveTrain {
         pointPID.tuneP(k_p);
         pointPID.tuneI(k_i);
         pointPID.tuneD(k_d);
+        toleranceMultiplier = 1.0 / k_p;
     }
 
     /**Uses a drive based on the DriveTrain's drive type.

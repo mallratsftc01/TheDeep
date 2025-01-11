@@ -15,9 +15,11 @@ public class Step {
     public double angle_tolerance;
 
     public double arm_target;
+    public double arm_max;
     public double arm_tolerance;
 
     public double lift_target;
+    public double lift_max;
     public double lift_tolerance;
 
     public double input;

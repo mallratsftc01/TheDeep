@@ -115,11 +115,11 @@ public class Geometry {
     /**@param a Point a.
      * @param b Point b.
      * @return The distance between point a and b.*/
-    public static double pythagorean(Point a, Point b) { return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2)); }
+    public static double pythagorean(Point a, Point b) { return pythagorean(b.x - a.x, b.y - a.y); }
     /**@param a Length of leg a.
      * @param b Length of leg b.
      * @return The length of the hypotenuse of a triangle with legs a and b.*/
-    public static double pythagorean(double a, double b) { return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)); }
+    public static double pythagorean(double a, double b) { return Math.sqrt((a * a) + (b * b));}
 
     /**@param angle1 First angle.
      * @param angle2 Second angle.

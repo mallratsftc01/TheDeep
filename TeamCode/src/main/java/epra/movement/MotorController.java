@@ -14,6 +14,7 @@ public class MotorController {
     private PIDController pidT;
     private int startPos;
     private int targetPosition;
+    private int lastTarget;
 
     private PIDController pidV;
     private double targetVelocity;
@@ -24,6 +25,7 @@ public class MotorController {
         velocity = 0;
         startPos = motor.getCurrentPosition();
         targetPosition = startPos;
+        lastTarget = startPos;
         targetVelocity = 0;
         pidT = new PIDController(1, 0, 0);
         pidV = new PIDController(1, 0, 0);
@@ -64,14 +66,21 @@ public class MotorController {
 
     /**Sets a target position for the motor to try to move towards.
      * @param target The position for the motor to try to move to in motor-specific ticks.*/
-    public void setTarget(int target) { targetPosition = target; }
+    public void setTarget(int target) {
+        if (target != targetPosition) {
+            lastTarget = targetPosition;
+            targetPosition = target;
+        }
+    }
     /**Moves the motor towards the set target.
-     * @param tolerance The tolerance for reaching the target as a double. If this is set to 0.0 the pid will run indefinitely.
+     * @param maxPower The absolute max power the motor can reach as a double between 0.0 and 1.0.
+     * @param tolerance The tolerance for reaching the target as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely.
      * @param haltAtTarget If true the motor will halt once the target is reached within the set tolerance.
      * @return True once the motor reaches its target, false until then.*/
-    public boolean moveToTarget(double tolerance, boolean haltAtTarget) {
-        double power = pidT.runPID(getCurrentPosition(), targetPosition);
-        if (Math.abs(power) > tolerance) {
+    public boolean moveToTarget(double maxPower, double tolerance, boolean haltAtTarget) {
+        double p = pidT.runPID(getCurrentPosition(), targetPosition);
+        double power = Math.min(Math.abs(p), maxPower) * Math.signum(p);
+        if (Math.abs(p) > (tolerance * Math.abs(lastTarget - targetPosition))) {
             setPower(power);
             return false;
         } else {

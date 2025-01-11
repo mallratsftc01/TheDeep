@@ -23,6 +23,7 @@ import epra.JSONReader;
 import epra.location.Odometry;
 import epra.location.Pose;
 import epra.math.geometry.Angle;
+import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
 import epra.movement.DcMotorExFrame;
 import epra.movement.DriveTrain;
@@ -34,8 +35,8 @@ public class AutoBase extends LinearOpMode {
 
     private final long LOOP_TIME = 27 * 1000;
 
-    private final String JSON_FILE_NAME = "auto_test.json";
-    private final String END_JSON_FILE_NAME = "test.json";
+    private final String JSON_FILE_NAME = "json/auto/auto_test.json";
+    private final String END_JSON_FILE_NAME = "json/movement/st_ch_b.json";
 
     private MotorController northEastMotor;
     private MotorController southEastMotor;
@@ -93,7 +94,7 @@ public class AutoBase extends LinearOpMode {
 
         DriveTrain drive = new DriveTrain(new String[] {"north_west_motor", "north_east_motor", "south_west_motor", "south_east_motor"}, new MotorController[] {northWestMotor, northEastMotor, southWestMotor, southEastMotor}, new DriveTrain.Orientation[] {DriveTrain.Orientation.LEFT_FRONT, DriveTrain.Orientation.RIGHT_FRONT, DriveTrain.Orientation.LEFT_BACK, DriveTrain.Orientation.RIGHT_BACK}, DriveTrain.DriveType.MECANUM);
         drive.tuneAnglePID(1, 0.00025, 270);
-        drive.tunePointPID(0.25, 0.00000001, 35);
+        drive.tunePointPID(0.25, 0.00000000, 35);
 
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
@@ -119,6 +120,7 @@ public class AutoBase extends LinearOpMode {
                 imuX,
                 steps.get(0).getPose()
         );
+        drive.setTargetPose(steps.get(0).getPose());
         steps.remove(0);
 
         filenames.remove(0);
@@ -139,15 +141,9 @@ public class AutoBase extends LinearOpMode {
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
             horizontalClaw.setPosition(steps.get(0).input);
             verticalClaw.setPosition(steps.get(0).output);
-            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, true);
 
-            if (atPose
-                    && verticalArmMotor.moveToTarget(steps.get(0).lift_tolerance, steps.size() == 1)
-                    && horizontalArmMotor.moveToTarget(steps.get(0).arm_tolerance, steps.size() == 1)
-                    && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
-                steps.remove(0);
-                saveTime = System.currentTimeMillis();
-            }
+            drive.setTargetPose(steps.get(0).getPose());
+            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, true);
 
             telemetry.addData("Paths Remaining: ", filenames.size());
             telemetry.addData("Steps Remaining in Path: ", steps.size());
@@ -156,6 +152,33 @@ public class AutoBase extends LinearOpMode {
             telemetry.addData("Y Target: ", steps.get(0).getPose().point.y);
             telemetry.addData("X Pose: ", odometry.getPose().point.x);
             telemetry.addData("Y Pose: ", odometry.getPose().point.y);
+            telemetry.addData("Lift Pos: ", verticalArmMotor.getCurrentPosition());
+            telemetry.addData("Tolerance: ", steps.get(0).pos_tolerance);
+
+            telemetry.addData("NE Motor Pow: ", northEastMotor.getPower());
+            telemetry.addData("NW Motor Pow: ", northWestMotor.getPower());
+            telemetry.addData("SE Motor Pow: ", southEastMotor.getPower());
+            telemetry.addData("SW Motor Pow: ", southWestMotor.getPower());
+
+            telemetry.addData("Abs Pos Tol: ", drive.getAbsolutePosTolerance(steps.get(0).pos_tolerance));
+            telemetry.addData("Abs Dist: ", Geometry.pythagorean(odometry.getPose().point, steps.get(0).getPose().point));
+
+            if (atPose
+                    && verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance, steps.size() == 1)
+                    && horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, steps.size() == 1)
+                    && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
+                steps.remove(0);
+                saveTime = System.currentTimeMillis();
+                telemetry.update();
+                continue;
+            }
+
+            //fail safe if it stalls
+            if (steps.get(0).millis == 0.0 && (System.currentTimeMillis() - saveTime) >= 1000.0) {
+                steps.remove(0);
+                saveTime = System.currentTimeMillis();
+            }
+
             telemetry.update();
         }
 
@@ -169,12 +192,21 @@ public class AutoBase extends LinearOpMode {
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
             horizontalClaw.setPosition(steps.get(0).input);
             verticalClaw.setPosition(steps.get(0).output);
-            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, true);
+
+            drive.setTargetPose(steps.get(0).getPose());
+            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, true);
 
             if (atPose
-                    && verticalArmMotor.moveToTarget(steps.get(0).lift_tolerance, steps.size() == 1)
-                    && horizontalArmMotor.moveToTarget(steps.get(0).arm_tolerance, steps.size() == 1)
+                    && verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance, steps.size() == 1)
+                    && horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, steps.size() == 1)
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
+                steps.remove(0);
+                saveTime = System.currentTimeMillis();
+                continue;
+            }
+
+            //fail safe if it stalls
+            if (steps.get(0).millis == 0.0 && (System.currentTimeMillis() - saveTime) >= 1000.0) {
                 steps.remove(0);
                 saveTime = System.currentTimeMillis();
             }

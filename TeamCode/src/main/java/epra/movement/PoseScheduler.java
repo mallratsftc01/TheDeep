@@ -50,7 +50,7 @@ public class PoseScheduler {
      * @return True if the target Pose is reached or if there are no steps in the scheduler's list of directions.*/
     public boolean runStep(DriveTrain driveTrain) {
         if (directions.isEmpty()) { return true; }
-        else { return driveTrain.posPIDMecanumDrive(odometry.getPose(), directions.get(0), pos_tol.get(0), ang_tol.get(0), (true)); }
+        else { return driveTrain.posPIDMecanumDrive(odometry.getPose(), pos_tol.get(0), ang_tol.get(0), (true)); }
     }
 
     /**Advances the directions by one step.
