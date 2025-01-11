@@ -32,6 +32,7 @@ public class TheDeep extends LinearOpMode {
 
     private MotorController horizontalArmMotor;
     private MotorController verticalArmMotor;
+    private MotorController climberMotor;
 
     private Servo horizontalClaw;
     private Servo horizontalWrist;
@@ -68,12 +69,14 @@ public class TheDeep extends LinearOpMode {
 
         DcMotorExFrame haMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalMotor"));
         DcMotorExFrame vaMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "verticalMotor"));
+        DcMotorExFrame cMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "climberMotor"));
         vaMotor.setDirection(Motor.Direction.REVERSE);
 
         horizontalArmMotor = new MotorController(haMotor);
         horizontalArmMotor.tuneTargetPID(0.9, 0.0000001, 0.003);
         verticalArmMotor = new MotorController(vaMotor);
         verticalArmMotor.tuneTargetPID(0.7, 0.0000005, 0.005);
+        climberMotor = new MotorController(cMotor);
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
         //horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
@@ -129,6 +132,11 @@ public class TheDeep extends LinearOpMode {
 
             //horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
             verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
+
+            //climber code
+            if (controller2.getButton(Controller.Key.X)) { climberMotor.setPower(0.25); }
+            else if (controller2.getButton(Controller.Key.B)) { climberMotor.setPower(-0.25); }
+            else { climberMotor.setPower(0.0); }
 
             //claw code
 
