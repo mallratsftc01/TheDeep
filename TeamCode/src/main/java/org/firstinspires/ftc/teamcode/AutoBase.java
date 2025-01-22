@@ -36,7 +36,7 @@ public class AutoBase extends LinearOpMode {
     private final long LOOP_TIME = 27 * 1000;
 
     private final String JSON_FILE_NAME = "json/auto/auto_test.json";
-    private final String END_JSON_FILE_NAME = "json/movement/st_ch_b.json";
+    private final String END_JSON_FILE_NAME = "json/movement/end";
 
     private MotorController northEastMotor;
     private MotorController southEastMotor;
@@ -147,24 +147,16 @@ public class AutoBase extends LinearOpMode {
 
             telemetry.addData("Paths Remaining: ", filenames.size());
             telemetry.addData("Steps Remaining in Path: ", steps.size());
-            telemetry.addData("At Pose: ", atPose);
             telemetry.addData("X Target: ", steps.get(0).getPose().point.x);
             telemetry.addData("Y Target: ", steps.get(0).getPose().point.y);
             telemetry.addData("X Pose: ", odometry.getPose().point.x);
             telemetry.addData("Y Pose: ", odometry.getPose().point.y);
-            telemetry.addData("Lift Pos: ", verticalArmMotor.getCurrentPosition());
+            telemetry.addData("Arm Pos: ", horizontalArmMotor.getCurrentPosition());
+            telemetry.addData("Arm Pow: ", horizontalArmMotor.getPower());
             telemetry.addData("Tolerance: ", steps.get(0).pos_tolerance);
 
-            telemetry.addData("NE Motor Pow: ", northEastMotor.getPower());
-            telemetry.addData("NW Motor Pow: ", northWestMotor.getPower());
-            telemetry.addData("SE Motor Pow: ", southEastMotor.getPower());
-            telemetry.addData("SW Motor Pow: ", southWestMotor.getPower());
-
-            telemetry.addData("Abs Pos Tol: ", drive.getAbsolutePosTolerance(steps.get(0).pos_tolerance));
-            telemetry.addData("Abs Dist: ", Geometry.pythagorean(odometry.getPose().point, steps.get(0).getPose().point));
-
             if (atPose
-                    && verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance, steps.size() == 1)
+                    && verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance,steps.size() == 1)
                     && horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, steps.size() == 1)
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
@@ -174,7 +166,7 @@ public class AutoBase extends LinearOpMode {
             }
 
             //fail safe if it stalls
-            if (steps.get(0).millis == 0.0 && (System.currentTimeMillis() - saveTime) >= 1000.0) {
+            if (steps.get(0).millis == 0.0 && (System.currentTimeMillis() - saveTime) >= 10000.0) {
                 steps.remove(0);
                 saveTime = System.currentTimeMillis();
             }

@@ -298,7 +298,7 @@ public class DriveTrain {
         Vector vectorLeft = pointPID.runPIDPoint(current.point, targetPose.point);
         Vector vectorRight = new Vector(1.0, targetPose.angle);
         boolean b = fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle, angleTolerance, haltAtTarget);
-        if (Math.abs(vectorLeft.getLength()) <= getAbsolutePosTolerance(posTolerance) && b) {
+        if (Geometry.pythagorean(current.point, targetPose.point) <= getAbsolutePosTolerance(posTolerance) && b) {
             if (haltAtTarget) { mecanumDrive(0, 0, 0); }
             pointPID.reset();
             return true;
@@ -309,7 +309,10 @@ public class DriveTrain {
     /**Finds the true tolerance to compare to the pos PID loop.
      * @param posTolerance A tolerance value between 0.0 and 1.0.
      * @return The true pos tolerance value.*/
-    public double getAbsolutePosTolerance(double posTolerance) { return Math.abs(posTolerance * Geometry.pythagorean(targetPose.point, lastTargetPose.point) * toleranceMultiplier); }
+    public double getAbsolutePosTolerance(double posTolerance) {
+        double dst = Geometry.pythagorean(targetPose.point, lastTargetPose.point);
+        return Math.abs(posTolerance * dst);
+    }
 
     /**Tunes the PID loop used to reach the target angle.
      * @param k_p The P constant.

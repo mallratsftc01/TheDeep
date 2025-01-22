@@ -18,6 +18,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -34,8 +35,8 @@ public class TheDeep extends LinearOpMode {
     private MotorController verticalArmMotor;
     private MotorController climberMotor;
 
-    private Servo horizontalClaw;
-    private Servo horizontalWrist;
+    private CRServo horizontalClaw;
+    private MotorController horizontalWrist;
     private Servo verticalClaw;
 
     private Controller controller1;
@@ -78,9 +79,10 @@ public class TheDeep extends LinearOpMode {
         verticalArmMotor.tuneTargetPID(0.7, 0.0000005, 0.005);
         climberMotor = new MotorController(cMotor);
 
-        horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
-        //horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
+        horizontalClaw = hardwareMap.get(CRServo.class, "horizontalClaw");
         verticalClaw = hardwareMap.get(Servo.class, "verticalClaw");
+        DcMotorExFrame wMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalWrist"));
+        horizontalWrist = new MotorController(wMotor);
 
         controller1 = new Controller (gamepad1, 0.05F);
         controller2 = new Controller (gamepad2, 0.05F);
@@ -130,18 +132,18 @@ public class TheDeep extends LinearOpMode {
 
             //arm code
 
-            //horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
+            horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
             verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
 
             //climber code
-            if (controller2.getButton(Controller.Key.X)) { climberMotor.setPower(0.25); }
-            else if (controller2.getButton(Controller.Key.B)) { climberMotor.setPower(-0.25); }
+            if (controller2.getButton(Controller.Key.X)) { climberMotor.setPower(1.0); }
+            else if (controller2.getButton(Controller.Key.B)) { climberMotor.setPower(-1.0); }
             else { climberMotor.setPower(0.0); }
 
             //claw code
 
-            //horizontalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.Y)) ? -1.0 : 1.0);
-            //horizontalWrist.setPosition((controller2.buttonToggleSingle(Controller.Key.A)) ? 1.0 : -1.0);
+            horizontalClaw.setPower(controller2.getButton(Controller.Key.Y) ? 1.0 : (controller2.getButton(Controller.Key.A) ? -1.0 : 0.0));
+            horizontalWrist.setPower(controller2.getButton(Controller.Key.X) ? .2 : (controller2.getButton(Controller.Key.B) ? -.2 : 0.0));
             //verticalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.UP)) ? 1.0 : -1.0);
 
             TelemetryPacket packet = new TelemetryPacket();
