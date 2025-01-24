@@ -10,6 +10,7 @@ import epra.location.Odometry;
 import epra.location.Pose;
 import epra.math.geometry.Angle;
 import epra.math.geometry.Point;
+import epra.movement.PIDTuner;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -18,14 +19,15 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import java.util.ArrayList;
+
 
 @TeleOp
-public class TheDeep extends LinearOpMode {
+public class PIDTest extends LinearOpMode {
     private MotorController northEastMotor;
     private MotorController southEastMotor;
     private MotorController southWestMotor;
@@ -35,8 +37,8 @@ public class TheDeep extends LinearOpMode {
     private MotorController verticalArmMotor;
     private MotorController climberMotor;
 
-    private CRServo horizontalClaw;
-    private MotorController horizontalWrist;
+    private Servo horizontalClaw;
+    private Servo horizontalWrist;
     private Servo verticalClaw;
 
     private Controller controller1;
@@ -49,6 +51,8 @@ public class TheDeep extends LinearOpMode {
     private Odometry odometry;
 
     FtcDashboard dashboard;
+
+    private PIDTuner pidTuner;
 
     int deltaDiff = 0;
 
@@ -79,10 +83,9 @@ public class TheDeep extends LinearOpMode {
         verticalArmMotor.tuneTargetPID(0.7, 0.0000005, 0.005);
         climberMotor = new MotorController(cMotor);
 
-        horizontalClaw = hardwareMap.get(CRServo.class, "horizontalClaw");
+        horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
+        //horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
         verticalClaw = hardwareMap.get(Servo.class, "verticalClaw");
-        DcMotorExFrame wMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalWrist"));
-        horizontalWrist = new MotorController(wMotor);
 
         controller1 = new Controller (gamepad1, 0.05F);
         controller2 = new Controller (gamepad2, 0.05F);
@@ -118,80 +121,31 @@ public class TheDeep extends LinearOpMode {
 
         Config config = new Config();
 
+        pidTuner = new PIDTuner();
+        double[] seed = {1.0, 0.0, 0.0};
+        double[][] tests = new double[10][3];
+        double[] best_p = {seed[0], 1.0};
+        double[] best_d = {seed[1], 1.0};
+
+        double start = 100.0;
+        double target = 200.0;
+
         waitForStart();
-        lastPing = System.currentTimeMillis();
-        while (opModeIsActive()) {
-            controller1.update();
-            controller2.update();
 
-            odometry.estimatePose();
-
-            //drive code
-
-            drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
-
-            //arm code
-
-            horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
-            verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
-
-            //climber code
-            if (controller2.getButton(Controller.Key.X)) { climberMotor.setPower(1.0); }
-            else if (controller2.getButton(Controller.Key.B)) { climberMotor.setPower(-1.0); }
-            else { climberMotor.setPower(0.0); }
-
-            //claw code
-
-            horizontalClaw.setPower(controller2.getButton(Controller.Key.Y) ? 1.0 : (controller2.getButton(Controller.Key.A) ? -1.0 : 0.0));
-            horizontalWrist.setPower(controller2.getButton(Controller.Key.X) ? .2 : (controller2.getButton(Controller.Key.B) ? -.2 : 0.0));
-            verticalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.UP)) ? 1.0 : -1.0);
-
-            TelemetryPacket packet = new TelemetryPacket();
-            /*odometry.drawPose(new Quadrilateral(
-                            new Point(9.0, 9.0),
-                            new Point(-9.0, 9.0),
-                            new Point(-9.0, -9.0),
-                            new Point(9.0, -9.0)
-                    ), true
-            );*/
-
-            packet.fieldOverlay()
-                    .setFill("blue")
-                    .fillCircle(odometry.getPose().point.x, odometry.getPose().point.y, 2);
-
-            packet.put("Ping Time", System.currentTimeMillis() - lastPing);
-            lastPing = System.currentTimeMillis();
-
-            packet.put("X", odometry.getPose().point.x);
-            packet.put("Y", odometry.getPose().point.y);
-            packet.put("Angle", odometry.getPose().angle.getDegree());
-
-            packet.put("Lift Pos", verticalArmMotor.getCurrentPosition());
-            telemetry.addData("Lift Pos: ", verticalArmMotor.getCurrentPosition());
-
-            /*packet.put("Right Stick Angle", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
-            packet.put("Right Stick length", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getLength());
-            packet.put("Right Stick x", gamepad1.right_stick_x);
-            packet.put("Right Stick y", gamepad1.right_stick_y);*/
-
-            /*packet.put("Right Encoder", odometry.getPos(Odometry.Orientation.RIGHT));
-            packet.put("Left Encoder", odometry.getPos(Odometry.Orientation.LEFT));
-            packet.put("Perpendicular Encoder", odometry.getPos(Odometry.Orientation.PERPENDICULAR));
-
-            packet.put("Delta Right", odometry.getDelta(Odometry.Orientation.RIGHT));
-            packet.put("Delta Left", odometry.getDelta(Odometry.Orientation.LEFT));
-            packet.put("Delta Perpendicular", odometry.getDelta(Odometry.Orientation.PERPENDICULAR));
-
-            packet.put("Phi", odometry.getPhi().getDegree());
-
-            packet.put("Center Displacement", odometry.centerDisplacement());
-            packet.put("Perpendicular Displacement", odometry.perpendicularDisplacement());*/
-
-            //packet.put("Current Angle: ", imuX.getYaw().getDegree());
-            //packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
-            //packet.put("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
-            dashboard.sendTelemetryPacket(packet);
-            telemetry.update();
+        for (int i = 0; i < tests.length; i++) {
+            tests[i][0] = seed[0] + (Math.random() * 2.0) - 1.0;
+            tests[i][1] = seed[1] + (Math.random() * 2.0) - 1.0;
+            tests[i][2] = seed[2];
         }
+        for (double[] test : tests) {
+            long saveTime = System.currentTimeMillis();
+            verticalArmMotor.tuneTargetPID(test[0], test[1], test[2]);
+            verticalArmMotor.setTarget(verticalArmMotor.getCurrentPosition() + 100);
+            while (System.currentTimeMillis() - saveTime < 5000) {
+                verticalArmMotor.moveToTarget(1.0, 0.01, true);
+
+            }
+        }
+
     }
 }
