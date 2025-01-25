@@ -17,6 +17,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -74,9 +75,10 @@ public class TheDeep extends LinearOpMode {
         vaMotor.setDirection(Motor.Direction.REVERSE);
 
         horizontalArmMotor = new MotorController(haMotor);
-        horizontalArmMotor.tuneTargetPID(0.9, 0.0000001, 0.003);
+        horizontalArmMotor.tuneTargetPID(0.005, 0, 0.9);
         verticalArmMotor = new MotorController(vaMotor);
-        verticalArmMotor.tuneTargetPID(0.7, 0.0000005, 0.005);
+        verticalArmMotor.tuneTargetPID(0.0023, 0.0, 0.9);
+        verticalArmMotor.setHoldPow(0.00002);
         climberMotor = new MotorController(cMotor);
 
         horizontalClaw = hardwareMap.get(CRServo.class, "horizontalClaw");
@@ -133,18 +135,25 @@ public class TheDeep extends LinearOpMode {
             //arm code
 
             horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y));
-            verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
+
+            verticalArmMotor.setPower(-controller2.analogDeadband(Controller.Key.LEFT_STICK_Y));
+            /*if (Config.TARGET != verticalArmMotor.getTarget()) { verticalArmMotor.setTarget(Config.TARGET); }
+            verticalArmMotor.tuneTargetPID(Config.K_P, Config.K_I, Config.K_D);
+            verticalArmMotor.setHoldPow(Config.HOLD_POW);
+            boolean b = verticalArmMotor.moveToTarget(1.0, Config.TOLERANCE, true);*/
 
             //climber code
-            if (controller2.getButton(Controller.Key.X)) { climberMotor.setPower(1.0); }
+            /*if (controller2.getButton(Controller.Key.X)) { climberMotor.setPower(1.0); }
             else if (controller2.getButton(Controller.Key.B)) { climberMotor.setPower(-1.0); }
-            else { climberMotor.setPower(0.0); }
+            else { climberMotor.setPower(0.0); }*/
 
             //claw code
 
             horizontalClaw.setPower(controller2.getButton(Controller.Key.Y) ? 1.0 : (controller2.getButton(Controller.Key.A) ? -1.0 : 0.0));
             horizontalWrist.setPower(controller2.getButton(Controller.Key.X) ? .2 : (controller2.getButton(Controller.Key.B) ? -.2 : 0.0));
-            verticalClaw.setPosition((controller2.buttonToggleSingle(Controller.Key.UP)) ? 1.0 : -1.0);
+            horizontalWrist.setHoldPow(-0.1);
+            //verticalClaw.setPosition(((double)(2 - controller2.buttonCounterSingle(Controller.Key.UP, 3))) * 0.5);
+            verticalClaw.setPosition(0.5);
 
             TelemetryPacket packet = new TelemetryPacket();
             /*odometry.drawPose(new Quadrilateral(
@@ -167,7 +176,7 @@ public class TheDeep extends LinearOpMode {
             packet.put("Angle", odometry.getPose().angle.getDegree());
 
             packet.put("Lift Pos", verticalArmMotor.getCurrentPosition());
-            telemetry.addData("Lift Pos: ", verticalArmMotor.getCurrentPosition());
+            packet.put("Arm Pos", horizontalArmMotor.getCurrentPosition());
 
             /*packet.put("Right Stick Angle", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
             packet.put("Right Stick length", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getLength());

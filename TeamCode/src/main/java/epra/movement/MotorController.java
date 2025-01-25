@@ -18,6 +18,9 @@ public class MotorController {
 
     private PIDController pidV;
     private double targetVelocity;
+
+    private double holdPow;
+
     /**Gives increase control over DcMotorExs.
      *@param motor The motor to be used by this MotorController.*/
     public MotorController(Motor motor) {
@@ -31,11 +34,12 @@ public class MotorController {
         pidV = new PIDController(1, 0, 0);
         savePos = startPos;
         saveTime = System.currentTimeMillis();
+        holdPow = 0.0;
     }
 
     /**Sets the motor to a certain power between -1.0 and 1.0.
      * @param power The power to set the motor to.*/
-    public void setPower(double power) { motor.setPower(power); }
+    public void setPower(double power) { motor.setPower(power + (holdPow * getCurrentPosition())); }
     /**Stops the motor.*/
     public void stop() { motor.setPower(0.0); }
 
@@ -72,6 +76,9 @@ public class MotorController {
             targetPosition = target;
         }
     }
+    /**Returns the current target position of the motor.
+     * @return The target position of the motor.*/
+    public int getTarget() { return targetPosition; }
     /**Moves the motor towards the set target.
      * @param maxPower The absolute max power the motor can reach as a double between 0.0 and 1.0.
      * @param tolerance The tolerance for reaching the target as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely.
@@ -81,14 +88,21 @@ public class MotorController {
         double p = pidT.runPID(getCurrentPosition(), targetPosition);
         double power = Math.min(Math.abs(p), maxPower) * Math.signum(p);
         if (Math.abs(p) > (tolerance * Math.abs(lastTarget - targetPosition))) {
-            setPower(power);
+            setPower(power + (holdPow * getCurrentPosition()));
             return false;
         } else {
-            if (haltAtTarget) { stop(); }
+            if (haltAtTarget) { setPower(holdPow * getCurrentPosition() ); }
             resetTargetPID();
             return true;
         }
     }
+
+    /**Sets the hold power, a multiple added to the power to counteract gravity and hold the motor at a specific position.
+     * @param holdPow A double between -1.0 and 1.0.*/
+    public void setHoldPow(double holdPow) { this.holdPow = holdPow; }
+    /**Returns the hold power, a multiple added to the power to counteract gravity and hold the motor at a specific position.
+     * @return The hold power.*/
+    public double getHoldPow() { return holdPow; }
 
     /**Tunes the PID loop used to reach a target.
      * @param k_p The P constant.

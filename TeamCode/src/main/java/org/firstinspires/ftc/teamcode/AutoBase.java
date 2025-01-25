@@ -81,9 +81,10 @@ public class AutoBase extends LinearOpMode {
         vaMotor.setDirection(Motor.Direction.REVERSE);
 
         horizontalArmMotor = new MotorController(haMotor);
-        horizontalArmMotor.tuneTargetPID(0.9, 0.0000001, 0.003);
+        horizontalArmMotor.tuneTargetPID(0.005, 0, 0.9);
         verticalArmMotor = new MotorController(vaMotor);
-        verticalArmMotor.tuneTargetPID(0.7, 0.0000005, 0.005);
+        verticalArmMotor.tuneTargetPID(0.0023, 0.0, 0.9);
+        verticalArmMotor.setHoldPow(0.00002);
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
         //horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
