@@ -1,5 +1,7 @@
 package epra.movement;
 
+import androidx.annotation.NonNull;
+
 import epra.location.Pose;
 import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
@@ -291,13 +293,14 @@ public class DriveTrain {
      * @param current The current position.
      * @param posTolerance The tolerance for reaching the target position as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely.
      * @param angleTolerance The tolerance for reaching the target angle as a positive double. If this is set to 0.0 the pid will run indefinitely.
+     * @param maxPower The maximum power of the motors.
      * @param haltAtTarget If true the motors will halt once the target is reached within the set tolerance.
      * @return True if the robot has reached the target position, false if not.
      *  */
-    public boolean posPIDMecanumDrive(Pose current, double posTolerance, double angleTolerance, boolean haltAtTarget) {
+    public boolean posPIDMecanumDrive(@NonNull Pose current, double posTolerance, double angleTolerance, double maxPower, boolean haltAtTarget) {
         Vector vectorLeft = pointPID.runPIDPoint(current.point, targetPose.point);
         Vector vectorRight = new Vector(1.0, targetPose.angle);
-        boolean b = fieldOrientedMecanumDrive(vectorRight, vectorLeft, current.angle, angleTolerance, haltAtTarget);
+        boolean b = fieldOrientedMecanumDrive(vectorRight, new Vector(Math.min(maxPower, vectorLeft.getLength()),vectorLeft), current.angle, angleTolerance, haltAtTarget);
         if (Geometry.pythagorean(current.point, targetPose.point) <= getAbsolutePosTolerance(posTolerance) && b) {
             if (haltAtTarget) { mecanumDrive(0, 0, 0); }
             pointPID.reset();

@@ -3,27 +3,18 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 import epra.Controller;
 import epra.IMUExpanded;
 import epra.JSONReader;
 import epra.location.Odometry;
-import epra.location.Pose;
-import epra.math.geometry.Angle;
-import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
 import epra.movement.DcMotorExFrame;
 import epra.movement.DriveTrain;
@@ -35,8 +26,8 @@ public class AutoBase extends LinearOpMode {
 
     private final long LOOP_TIME = 27 * 1000;
 
-    private final String JSON_FILE_NAME = "json/auto/auto_test.json";
-    private final String END_JSON_FILE_NAME = "json/movement/end";
+    private final String JSON_FILE_NAME = "json/auto/left_blue.json";
+    private final String END_JSON_FILE_NAME = "json/drive/end";
 
     private MotorController northEastMotor;
     private MotorController southEastMotor;
@@ -46,9 +37,9 @@ public class AutoBase extends LinearOpMode {
     private MotorController horizontalArmMotor;
     private MotorController verticalArmMotor;
 
-    private Servo horizontalClaw;
-    private Servo horizontalWrist;
-    private Servo verticalClaw;
+    private CRServo horizontalClaw;
+    private MotorController horizontalWrist;
+    private Servo verticalBucket;
 
     private Controller controller1;
     private Controller controller2;
@@ -86,9 +77,10 @@ public class AutoBase extends LinearOpMode {
         verticalArmMotor.tuneTargetPID(0.0023, 0.0, 0.9);
         verticalArmMotor.setHoldPow(0.00002);
 
-        horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
-        //horizontalWrist = hardwareMap.get(Servo.class, "horizontalWrist");
-        verticalClaw = hardwareMap.get(Servo.class, "verticalClaw");
+        horizontalClaw = hardwareMap.get(CRServo.class, "horizontalClaw");
+        DcMotorExFrame wMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalWrist"));
+        horizontalWrist = new MotorController(wMotor);
+        verticalBucket = hardwareMap.get(Servo.class, "verticalClaw");
 
         controller1 = new Controller (gamepad1, 0.05F);
         controller2 = new Controller (gamepad2, 0.05F);
@@ -140,11 +132,18 @@ public class AutoBase extends LinearOpMode {
 
             verticalArmMotor.setTarget((int) steps.get(0).lift_target);
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
-            horizontalClaw.setPosition(steps.get(0).input);
-            verticalClaw.setPosition(steps.get(0).output);
+            horizontalClaw.setPower(0.0);
+            horizontalWrist.setPower(-0.3);
+            if (steps.get(0).use_intake && verticalArmMotor.getCurrentPosition() < -500) {
+                horizontalWrist.setPower(0.1);
+                horizontalClaw.setPower(-1.0);
+            }
+            double bucketPos = steps.get(0).bucket_pos;
+            if (verticalArmMotor.getCurrentPosition() > 100 && bucketPos > 0.5) { bucketPos = 0.5; }
+            verticalBucket.setPosition(bucketPos);
 
             drive.setTargetPose(steps.get(0).getPose());
-            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, true);
+            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
 
             telemetry.addData("Paths Remaining: ", filenames.size());
             telemetry.addData("Steps Remaining in Path: ", steps.size());
@@ -154,6 +153,8 @@ public class AutoBase extends LinearOpMode {
             telemetry.addData("Y Pose: ", odometry.getPose().point.y);
             telemetry.addData("Arm Pos: ", horizontalArmMotor.getCurrentPosition());
             telemetry.addData("Arm Pow: ", horizontalArmMotor.getPower());
+            telemetry.addData("Lift Pos: ", verticalArmMotor.getCurrentPosition());
+            telemetry.addData("Lift Pow: ", verticalArmMotor.getPower());
             telemetry.addData("Tolerance: ", steps.get(0).pos_tolerance);
 
             if (atPose
@@ -167,7 +168,7 @@ public class AutoBase extends LinearOpMode {
             }
 
             //fail safe if it stalls
-            if (steps.get(0).millis == 0.0 && (System.currentTimeMillis() - saveTime) >= 10000.0) {
+            if (steps.get(0).millis == 0.0 && (System.currentTimeMillis() - saveTime) >= 1000.0) {
                 steps.remove(0);
                 saveTime = System.currentTimeMillis();
             }
@@ -183,11 +184,18 @@ public class AutoBase extends LinearOpMode {
 
             verticalArmMotor.setTarget((int) steps.get(0).lift_target);
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
-            horizontalClaw.setPosition(steps.get(0).input);
-            verticalClaw.setPosition(steps.get(0).output);
+            horizontalClaw.setPower(0.0);
+            horizontalWrist.setPower(-0.3);
+            if (steps.get(0).use_intake && verticalArmMotor.getCurrentPosition() < -500) {
+                horizontalWrist.setPower(0.1);
+                horizontalClaw.setPower(-1.0);
+            }
+            double bucketPos = steps.get(0).bucket_pos;
+            if (verticalArmMotor.getCurrentPosition() > 100 && bucketPos > 0.5) { bucketPos = 0.5; }
+            verticalBucket.setPosition(bucketPos);
 
             drive.setTargetPose(steps.get(0).getPose());
-            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, true);
+            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
 
             if (atPose
                     && verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance, steps.size() == 1)

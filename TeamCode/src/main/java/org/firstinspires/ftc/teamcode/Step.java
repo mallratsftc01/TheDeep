@@ -13,6 +13,7 @@ public class Step {
     public double theta;
     public double pos_tolerance;
     public double angle_tolerance;
+    public double drive_max;
 
     public double arm_target;
     public double arm_max;
@@ -22,8 +23,8 @@ public class Step {
     public double lift_max;
     public double lift_tolerance;
 
-    public double input;
-    public double output;
+    public boolean use_intake;
+    public double bucket_pos;
 
     public long millis;
 
