@@ -107,6 +107,11 @@ public class Geometry {
      * @param angle An angle.
      * @return The resulting vector from subtracting the angle from the angle of the vector and keeping the length of the vector.*/
     public static Vector subtract(Vector vector, Angle angle) { return new Vector(vector.getLength(), subtract((Angle) vector, angle)); }
+    /**Scales a vector by a scalar.
+     * @param vector A vector.
+     * @param scalar A double scalar.
+     * @return The vector scaled by the scalar.*/
+    public static Vector scale(Vector vector, double scalar) { return new Vector(vector.getLength() * scalar, vector); }
     /**@param vector1 First vector.
      * @param vector2 Second vector.
      * @return Returns the dot product of the two vectors.*/

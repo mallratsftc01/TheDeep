@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import epra.Controller;
+import epra.math.geometry.Geometry;
+import epra.math.geometry.Vector;
 import epra.movement.DriveTrain;
 import epra.IMUExpanded;
 import epra.movement.Motor;
@@ -118,6 +120,9 @@ public class TheDeep extends LinearOpMode {
 
         Config config = new Config();
 
+        boolean fieldOrientedDrive = true;
+        boolean angleCorrectionFOD = false;
+
         boolean useLiftPID = false;
 
         waitForStart();
@@ -130,7 +135,19 @@ public class TheDeep extends LinearOpMode {
 
             //Driver Controller
 
-            drive.setDrivePower(controller1.analogDeadband(Controller.Key.RIGHT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.RIGHT_STICK_Y), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y));
+                //Toggles between normal drive, field oriented drive, and angle correcting field oriented drive
+            if (controller1.buttonSingle(Controller.Key.BUMPER_LEFT) && controller1.buttonSingle(Controller.Key.STICK_LEFT)) { fieldOrientedDrive = !fieldOrientedDrive; }
+            if (controller1.buttonSingle(Controller.Key.BUMPER_RIGHT) && controller1.buttonSingle(Controller.Key.STICK_RIGHT)) { angleCorrectionFOD = !angleCorrectionFOD; }
+            if (!fieldOrientedDrive) { angleCorrectionFOD = false; }
+
+                //Lowers the speeds when the joysticks are pressed
+            Vector drivePow = Geometry.scale(controller1.analogDeadband(Controller.Stick.LEFT_STICK), (controller1.getButton(Controller.Key.STICK_LEFT) ? 0.5 : 1.0));
+            float turnPow = controller1.analogDeadband(Controller.Key.RIGHT_STICK_X) * (controller1.getButton(Controller.Key.STICK_RIGHT) ? 0.5f : 1.0f);
+
+                //Uses the correct drive method
+            if (angleCorrectionFOD) { drive.fieldOrientedMecanumDrive(controller1.analogDeadband(Controller.Stick.RIGHT_STICK), drivePow, imuX.getYaw(), 0.1, true); }
+            else if (fieldOrientedDrive) { drive.fieldOrientedMecanumDrive(turnPow, drivePow, imuX.getYaw()); }
+            else { drive.mecanumDrive(turnPow, drivePow); }
 
             //Operator Controller
 
@@ -163,10 +180,10 @@ public class TheDeep extends LinearOpMode {
             }
 
                 //Zeros the motors if the corresponding bumper and stick are clicked
-            if (controller2.getButton(Controller.Key.BUMPER_LEFT) && controller2.getButton(Controller.Key.STICK_LEFT)) {
+            if (controller2.buttonSingle(Controller.Key.BUMPER_LEFT) && controller2.buttonSingle(Controller.Key.STICK_LEFT)) {
                 verticalArmMotor.zero();
             }
-            if (controller2.getButton(Controller.Key.BUMPER_RIGHT) && controller2.getButton(Controller.Key.STICK_RIGHT)) {
+            if (controller2.buttonSingle(Controller.Key.BUMPER_RIGHT) && controller2.buttonSingle(Controller.Key.STICK_RIGHT)) {
                 horizontalArmMotor.zero();
             }
 
