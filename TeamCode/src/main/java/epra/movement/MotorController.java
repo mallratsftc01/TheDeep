@@ -143,4 +143,7 @@ public class MotorController {
     }
     /**Resets the PID loop used to maintain a velocity.*/
     public void resetVelocityPID() { pidV.reset(); }
+
+    /**Sets the current position of the motor to 0.*/
+    public void zero() { startPos = motor.getCurrentPosition(); }
 }
