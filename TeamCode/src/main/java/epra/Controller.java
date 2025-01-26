@@ -111,6 +111,8 @@ public class Controller extends Gamepad {
         map.put(Key.RIGHT_STICK_X, new Button(gamepad.right_stick_x));
         map.put(Key.LEFT_STICK_Y, new Button(gamepad.left_stick_y));
         map.put(Key.RIGHT_STICK_Y, new Button(gamepad.right_stick_y));
+        map.put(Key.LEFT_TRIGGER, new Button(gamepad.left_trigger));
+        map.put(Key.RIGHT_TRIGGER, new Button(gamepad.right_trigger));
         stick.put(Stick.RIGHT_STICK, new Vector(map.get(Key.RIGHT_STICK_X).toFloat(), map.get(Key.RIGHT_STICK_Y).toFloat()));
         stick.put(Stick.LEFT_STICK, new Vector(map.get(Key.LEFT_STICK_X).toFloat(), map.get(Key.LEFT_STICK_Y).toFloat()));
     }
@@ -132,6 +134,8 @@ public class Controller extends Gamepad {
         map.get(Key.RIGHT_STICK_X).update(gamepad.right_stick_x);
         map.get(Key.LEFT_STICK_Y).update(gamepad.left_stick_y);
         map.get(Key.RIGHT_STICK_Y).update(gamepad.right_stick_y);
+        map.get(Key.LEFT_TRIGGER).update(gamepad.left_trigger);
+        map.get(Key.RIGHT_TRIGGER).update(gamepad.right_trigger);
         stick.get(Stick.RIGHT_STICK).setPoint(new Point(map.get(Key.RIGHT_STICK_X).toFloat(), map.get(Key.RIGHT_STICK_Y).toFloat()));
         stick.get(Stick.LEFT_STICK).setPoint(new Point(map.get(Key.LEFT_STICK_X).toFloat(), map.get(Key.LEFT_STICK_Y).toFloat()));
     }

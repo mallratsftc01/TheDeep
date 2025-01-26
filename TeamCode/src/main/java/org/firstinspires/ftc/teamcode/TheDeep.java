@@ -171,7 +171,7 @@ public class TheDeep extends LinearOpMode {
 
                 //Drives the arm via joystick only if the lift is retracted
             if (verticalArmMotor.getCurrentPosition() < 100) {
-                double maxPow = (controller2.getButton(Controller.Key.STICK_RIGHT)) ? 0.5 : 1.0;
+                double maxPow = (controller2.getButton(Controller.Key.STICK_RIGHT)) ? -0.5 : -1.0;
                 horizontalArmMotor.setPower(-controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y) * maxPow);
             }
                 //Dumps the bucket if A is pressed
@@ -189,19 +189,19 @@ public class TheDeep extends LinearOpMode {
 
                 //If the arm is extended and the left trigger is pressed lowers and activates the claw, otherwise raises the claw
             horizontalClaw.setPower(0.0);
+            horizontalWrist.setPower(-0.3);
             if (horizontalArmMotor.getCurrentPosition() < -500) {
                 if (controller2.analogDeadband(Controller.Key.LEFT_TRIGGER) != 0.0) {
-                    horizontalWrist.setPower(0.0);
-                    horizontalClaw.setPower(1.0);
-                } else {
-                    horizontalWrist.setPower(-0.2);
+                    horizontalWrist.setPower(0.1);
+                    horizontalClaw.setPower(-1.0);
                 }
             }
 
                 //If both the arm and the lift are retracted and the right trigger is pressed a sample in the claw is transferred to the bucket
             if (controller2.analogDeadband(Controller.Key.RIGHT_TRIGGER) != 0.0 && horizontalArmMotor.getCurrentPosition() > -100 && verticalArmMotor.getCurrentPosition() < 100) {
                 bucketPos = 1.0;
-                horizontalClaw.setPower(-1.0);
+                horizontalWrist.setPower(0.1);
+                horizontalClaw.setPower(1.0);
             }
                 //Cycles the bucket's position if B is pressed
             if (controller2.buttonSingle(Controller.Key.B)) {
