@@ -34,11 +34,11 @@ public class TheDeep extends LinearOpMode {
 
     private MotorController horizontalArmMotor;
     private MotorController verticalArmMotor;
-    private MotorController climberMotor;
+    //private MotorController climberMotor;
 
     private CRServo horizontalClaw;
     private MotorController horizontalWrist;
-    private Servo verticalBucket;
+    private MotorController verticalBucket;
 
     private Controller controller1;
     private Controller controller2;
@@ -71,7 +71,7 @@ public class TheDeep extends LinearOpMode {
 
         DcMotorExFrame haMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalMotor"));
         DcMotorExFrame vaMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "verticalMotor"));
-        DcMotorExFrame cMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "climberMotor"));
+        //DcMotorExFrame cMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "climberMotor"));
         vaMotor.setDirection(Motor.Direction.REVERSE);
 
         horizontalArmMotor = new MotorController(haMotor);
@@ -79,10 +79,12 @@ public class TheDeep extends LinearOpMode {
         verticalArmMotor = new MotorController(vaMotor);
         verticalArmMotor.tuneTargetPID(0.0023, 0.0, 0.9);
         verticalArmMotor.setHoldPow(0.00002);
-        climberMotor = new MotorController(cMotor);
+        //climberMotor = new MotorController(cMotor);
 
         horizontalClaw = hardwareMap.get(CRServo.class, "horizontalClaw");
-        verticalBucket = hardwareMap.get(Servo.class, "verticalClaw");
+        verticalBucket = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "bucketMotor")));
+        verticalBucket.tuneTargetPID(0.2, 0, 15.5);
+        verticalBucket.setTarget(-50);
         DcMotorExFrame wMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalWrist"));
         horizontalWrist = new MotorController(wMotor);
 
@@ -123,6 +125,9 @@ public class TheDeep extends LinearOpMode {
         boolean fieldOrientedDrive = true;
         boolean angleCorrectionFOD = false;
 
+        boolean fodFlag = false;
+        boolean acfodFlag = false;
+
         boolean useLiftPID = false;
 
         waitForStart();
@@ -136,8 +141,18 @@ public class TheDeep extends LinearOpMode {
             //Driver Controller
 
                 //Toggles between normal drive, field oriented drive, and angle correcting field oriented drive
-            if (controller1.buttonSingle(Controller.Key.BUMPER_LEFT) && controller1.buttonSingle(Controller.Key.STICK_LEFT)) { fieldOrientedDrive = !fieldOrientedDrive; }
-            if (controller1.buttonSingle(Controller.Key.BUMPER_RIGHT) && controller1.buttonSingle(Controller.Key.STICK_RIGHT)) { angleCorrectionFOD = !angleCorrectionFOD; }
+            if (controller1.getButton(Controller.Key.BUMPER_LEFT) && controller1.buttonSingle(Controller.Key.STICK_LEFT)) {
+                if (!fodFlag) {
+                    fieldOrientedDrive = !fieldOrientedDrive;
+                    fodFlag = true;
+                }
+            } else { fodFlag = false; }
+            if (controller1.getButton(Controller.Key.BUMPER_RIGHT) && controller1.buttonSingle(Controller.Key.STICK_RIGHT)) {
+                if (!acfodFlag) {
+                    angleCorrectionFOD = !angleCorrectionFOD;
+                    acfodFlag = true;
+                } else { acfodFlag = false; }
+            }
             if (!fieldOrientedDrive) { angleCorrectionFOD = false; }
 
                 //Lowers the speeds when the joysticks are pressed
@@ -151,8 +166,6 @@ public class TheDeep extends LinearOpMode {
 
             //Operator Controller
 
-            double bucketPos = verticalBucket.getPosition();
-
                 //Sets targets for the lid PID
             if (controller2.analogDeadband(Controller.Key.LEFT_STICK_Y) != 0.0) { useLiftPID = false; }
             boolean[] dpad = {controller2.getButton(Controller.Key.UP), controller2.getButton(Controller.Key.LEFT), controller2.getButton(Controller.Key.RIGHT), controller2.getButton(Controller.Key.DOWN)};
@@ -163,56 +176,62 @@ public class TheDeep extends LinearOpMode {
             else if (dpad[3]) { verticalArmMotor.setTarget(0); }
 
                 //Drives the lift via PID or joystick only if the arm is retracted
-            if (horizontalArmMotor.getCurrentPosition() > -100) {
+            if (horizontalArmMotor.getCurrentPosition() < 100) {
                 double maxPow = (controller2.getButton(Controller.Key.STICK_LEFT)) ? 0.5 : 1.0;
                 if (useLiftPID) { verticalArmMotor.moveToTarget(maxPow, 0.001, true); }
                 else { verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y) * maxPow); }
             }
 
+            verticalBucket.setTarget(0);
                 //Drives the arm via joystick only if the lift is retracted
             if (verticalArmMotor.getCurrentPosition() < 100) {
-                double maxPow = (controller2.getButton(Controller.Key.STICK_RIGHT)) ? -0.5 : -1.0;
+                double maxPow = (controller2.getButton(Controller.Key.STICK_RIGHT)) ? 0.5 : 1.0;
                 horizontalArmMotor.setPower(-controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y) * maxPow);
             }
                 //Dumps the bucket if A is pressed
             else {
-                bucketPos = (controller2.getButton(Controller.Key.A)) ? 0.0 : 0.5;
+                if (controller2.getButton(Controller.Key.A)) { verticalBucket.setTarget(100); }
+                else { verticalBucket.setTarget(-50); }
             }
 
                 //Zeros the motors if the corresponding bumper and stick are clicked
-            if (controller2.buttonSingle(Controller.Key.BUMPER_LEFT) && controller2.buttonSingle(Controller.Key.STICK_LEFT)) {
+            if (controller2.getButton(Controller.Key.BUMPER_LEFT) && controller2.getButton(Controller.Key.STICK_LEFT)) {
                 verticalArmMotor.zero();
             }
-            if (controller2.buttonSingle(Controller.Key.BUMPER_RIGHT) && controller2.buttonSingle(Controller.Key.STICK_RIGHT)) {
+            if (controller2.getButton(Controller.Key.BUMPER_RIGHT) && controller2.getButton(Controller.Key.STICK_RIGHT)) {
                 horizontalArmMotor.zero();
             }
 
                 //If the arm is extended and the left trigger is pressed lowers and activates the claw, otherwise raises the claw
             horizontalClaw.setPower(0.0);
-            horizontalWrist.setPower(-0.3);
-            if (horizontalArmMotor.getCurrentPosition() < -500) {
+            horizontalWrist.setTarget(100); //TEMPORARY POS
+            if (horizontalArmMotor.getCurrentPosition() > 500) {
                 if (controller2.analogDeadband(Controller.Key.LEFT_TRIGGER) != 0.0) {
-                    horizontalWrist.setPower(0.1);
+                    horizontalWrist.setTarget(-100); //TEMPORARY POS
                     horizontalClaw.setPower(-1.0);
                 }
             }
 
                 //If both the arm and the lift are retracted and the right trigger is pressed a sample in the claw is transferred to the bucket
-            if (controller2.analogDeadband(Controller.Key.RIGHT_TRIGGER) != 0.0 && horizontalArmMotor.getCurrentPosition() > -100 && verticalArmMotor.getCurrentPosition() < 100) {
-                bucketPos = 1.0;
-                horizontalWrist.setPower(0.1);
+            if (controller2.analogDeadband(Controller.Key.RIGHT_TRIGGER) != 0.0 && horizontalArmMotor.getCurrentPosition() < 100 && verticalArmMotor.getCurrentPosition() < 100) {
+                verticalBucket.setTarget(-5);
+                horizontalWrist.setTarget(-100); //TEMPORARY POS
                 horizontalClaw.setPower(1.0);
             }
                 //Cycles the bucket's position if B is pressed
-            if (controller2.buttonSingle(Controller.Key.B)) {
-                bucketPos = (bucketPos + 0.5) % 1.5;
-            }
-            verticalBucket.setPosition(bucketPos);
+                //no clue how to do this
 
-                //Drives the climber motor
+            verticalBucket.moveToTarget(0.5, 0.05, true);
+
+            horizontalWrist.tuneTargetPID(Config.K_P, Config.K_I, Config.K_D);
+            horizontalWrist.setTarget(Config.TARGET);
+            horizontalWrist.moveToTarget(0.5, Config.TOLERANCE, true);
+
+                /*//Drives the climber motor
             if (controller2.getButton(Controller.Key.X)) { climberMotor.setPower(1.0); }
             else if (controller2.getButton(Controller.Key.Y)) { climberMotor.setPower(-1.0); }
-            else { climberMotor.setPower(0.0); }
+            else { climberMotor.setPower(0.0); }*/
+
 
             TelemetryPacket packet = new TelemetryPacket();
             /*odometry.drawPose(new Quadrilateral(
@@ -236,6 +255,8 @@ public class TheDeep extends LinearOpMode {
 
             packet.put("Lift Pos", verticalArmMotor.getCurrentPosition());
             packet.put("Arm Pos", horizontalArmMotor.getCurrentPosition());
+            packet.put("Bucket Pos", verticalBucket.getCurrentPosition());
+            packet.put("Wrist Pos", horizontalWrist.getCurrentPosition());
 
             /*packet.put("Right Stick Angle", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
             packet.put("Right Stick length", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getLength());

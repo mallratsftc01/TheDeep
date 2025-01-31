@@ -134,7 +134,7 @@ public class AutoBase extends LinearOpMode {
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
             horizontalClaw.setPower(0.0);
             horizontalWrist.setPower(-0.3);
-            if (steps.get(0).use_intake && verticalArmMotor.getCurrentPosition() < -500) {
+            if (steps.get(0).use_intake && verticalArmMotor.getCurrentPosition() > 500) {
                 horizontalWrist.setPower(0.1);
                 horizontalClaw.setPower(-1.0);
             }
@@ -186,7 +186,7 @@ public class AutoBase extends LinearOpMode {
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
             horizontalClaw.setPower(0.0);
             horizontalWrist.setPower(-0.3);
-            if (steps.get(0).use_intake && verticalArmMotor.getCurrentPosition() < -500) {
+            if (steps.get(0).use_intake && verticalArmMotor.getCurrentPosition() > 500) {
                 horizontalWrist.setPower(0.1);
                 horizontalClaw.setPower(-1.0);
             }
