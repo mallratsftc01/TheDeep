@@ -34,8 +34,8 @@ public class AutoBase extends LinearOpMode {
 
     private final long LOOP_TIME = 27 * 1000;
 
-    private final String JSON_FILE_NAME = "json/auto/right.json";
-    private final String END_JSON_FILE_NAME = "json/drive/end_right";
+    private final String JSON_FILE_NAME = "json/auto/left.json";
+    private final String END_JSON_FILE_NAME = "json/drive/end_left.json";
 
     private MotorController northEastMotor;
     private MotorController southEastMotor;
@@ -135,6 +135,7 @@ public class AutoBase extends LinearOpMode {
         waitForStart();
         long startTime = System.currentTimeMillis();
         long saveTime = startTime;
+        long tickTime = startTime;
         while (System.currentTimeMillis() - startTime < LOOP_TIME && (!filenames.isEmpty() || !steps.isEmpty())) {
             odometry.estimatePose();
 
@@ -153,7 +154,7 @@ public class AutoBase extends LinearOpMode {
                 horizontalClaw.setPosition(1.0);
             }
 
-            if (steps.get(0).wrist_down) {
+            if (!steps.get(0).wrist_down) {
                 if (horizontalWrist.getCurrentPosition() > -30) {
                     horizontalWrist.moveToTarget(0.5, 0.1, true);
                 }
@@ -169,20 +170,22 @@ public class AutoBase extends LinearOpMode {
             drive.setTargetPose(steps.get(0).getPose());
             boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
 
+            long s = System.currentTimeMillis();
+            telemetry.addData("ms/t", s - tickTime);
             telemetry.addData("Paths Remaining: ", filenames.size());
             telemetry.addData("Steps Remaining in Path: ", steps.size());
-            telemetry.addData("X Target: ", steps.get(0).getPose().point.x);
-            telemetry.addData("Y Target: ", steps.get(0).getPose().point.y);
+            telemetry.addData("At Pose: ", atPose);
             telemetry.addData("X Pose: ", odometry.getPose().point.x);
             telemetry.addData("Y Pose: ", odometry.getPose().point.y);
             telemetry.addData("Arm Pos: ", horizontalArmMotor.getCurrentPosition());
             telemetry.addData("Arm Pow: ", horizontalArmMotor.getPower());
             telemetry.addData("Lift Pos: ", verticalArmMotor.getCurrentPosition());
             telemetry.addData("Lift Pow: ", verticalArmMotor.getPower());
-            telemetry.addData("Tolerance: ", steps.get(0).pos_tolerance);
+            telemetry.addData("Lift Target: ", steps.get(0).lift_target);
+            tickTime = s;
 
             if (atPose
-                    && verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance,steps.size() == 1)
+                    && (verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance,steps.size() == 1) || Math.abs(verticalArmMotor.getCurrentPosition() - steps.get(0).lift_target) <= 50)
                     && horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, steps.size() == 1)
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
@@ -232,7 +235,7 @@ public class AutoBase extends LinearOpMode {
             boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
 
             if (atPose
-                    && verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance, steps.size() == 1)
+                    && (verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance,steps.size() == 1) || Math.abs(verticalArmMotor.getCurrentPosition() - steps.get(0).lift_target) <= 25)
                     && horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, steps.size() == 1)
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
