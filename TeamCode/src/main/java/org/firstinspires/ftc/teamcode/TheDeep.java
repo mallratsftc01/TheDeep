@@ -84,7 +84,7 @@ public class TheDeep extends LinearOpMode {
         horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
         verticalBucket = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "bucketMotor")));
         verticalBucket.tuneTargetPID(0.2, 0, 15.5);
-        verticalBucket.setTarget(-50);
+        //verticalBucket.setTarget(-50);
         DcMotorExFrame wMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalWrist"));
         horizontalWrist = new MotorController(wMotor);
         horizontalWrist.tuneTargetPID(0.5, 0, 0);
@@ -171,26 +171,24 @@ public class TheDeep extends LinearOpMode {
             if (controller2.analogDeadband(Controller.Key.LEFT_STICK_Y) != 0.0) { useLiftPID = false; }
             boolean[] dpad = {controller2.getButton(Controller.Key.UP), controller2.getButton(Controller.Key.LEFT), controller2.getButton(Controller.Key.RIGHT), controller2.getButton(Controller.Key.DOWN)};
             if (dpad[0] || dpad[1] || dpad[2] || dpad[3]) { useLiftPID = true; }
-            if (dpad[0]) { verticalArmMotor.setTarget(-3600); }
-            else if (dpad[1]) { verticalArmMotor.setTarget(-2000); }
-            else if (dpad[2]) { verticalArmMotor.setTarget(-1600); }
+            if (dpad[0]) { verticalArmMotor.setTarget(3600); }
+            else if (dpad[1]) { verticalArmMotor.setTarget(2000); }
+            else if (dpad[2]) { verticalArmMotor.setTarget(1600); }
             else if (dpad[3]) { verticalArmMotor.setTarget(0); }
 
                 //Drives the lift via PID or joystick only if the arm is retracted
-            if (horizontalArmMotor.getCurrentPosition() < 100) {
+            if (horizontalArmMotor.getCurrentPosition() > -100) {
                 double maxPow = (controller2.getButton(Controller.Key.STICK_LEFT)) ? -0.5 : -1.0;
                 if (useLiftPID) { verticalArmMotor.moveToTarget(maxPow, 0.001, true); }
                 else { verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y) * maxPow); }
             }
 
-            verticalBucket.setTarget(0);
                 //Drives the arm via joystick only if the lift is retracted
             if (verticalArmMotor.getCurrentPosition() < 100) {
                 double maxPow = (controller2.getButton(Controller.Key.STICK_RIGHT)) ? 0.5 : 1.0;
-                horizontalArmMotor.setPower(-controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y) * maxPow);
+                horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y) * maxPow);
             }
-                //Dumps the bucket if A is pressed
-            else {
+            /*else {
                 if (verticalArmMotor.getCurrentPosition() > 300) {
                     if (controller2.getButton(Controller.Key.A)) {
                         verticalBucket.setTarget(150);
@@ -198,7 +196,7 @@ public class TheDeep extends LinearOpMode {
                         verticalBucket.setTarget(-50);
                     }
                 }
-            }
+            }*/
 
                 //Zeros the motors if the corresponding bumper and stick are clicked
             if (controller2.getButton(Controller.Key.BUMPER_LEFT) && controller2.getButton(Controller.Key.STICK_LEFT)) {
@@ -208,26 +206,32 @@ public class TheDeep extends LinearOpMode {
                 horizontalArmMotor.zero();
             }
 
-                //If the arm is extended and the left trigger is pressed lowers and activates the claw, otherwise raises the claw
+                //If x is pressed the claw is opened/closed
             horizontalClaw.setPosition(0.0);
-            horizontalWrist.setTarget(-40);
-            if (horizontalArmMotor.getCurrentPosition() > 500) {
-                if (controller2.analogDeadband(Controller.Key.LEFT_TRIGGER) != 0.0) {
-                    horizontalWrist.setTarget(20);
-                    horizontalClaw.setPosition(1.0);
-                }
-            }
-
-                //If both the arm and the lift are retracted and the right trigger is pressed a sample in the claw is transferred to the bucket
-            if (controller2.analogDeadband(Controller.Key.RIGHT_TRIGGER) != 0.0 && horizontalArmMotor.getCurrentPosition() < 100 && verticalArmMotor.getCurrentPosition() < 100) {
-                horizontalWrist.setTarget(-10);
+            horizontalWrist.setTarget(-30);
+            if (controller2.buttonToggleSingle(Controller.Key.X) && horizontalWrist.getCurrentPosition() > -30) {
                 horizontalClaw.setPosition(1.0);
             }
-                //Cycles the bucket's position if B is pressed
-                //no clue how to do this
 
-            verticalBucket.moveToTarget(0.5, 0.1, true);
-            horizontalWrist.moveToTarget(0.5, 0.1, true);
+                //if y is pressed the claw goes down/up
+            if (controller2.buttonToggleSingle(Controller.Key.Y)) {
+                if (horizontalWrist.getCurrentPosition() > -30) {
+                    horizontalWrist.moveToTarget(0.5, 0.1, true);
+                }
+                horizontalWrist.setHoldPow(0.001);
+            } else {
+                horizontalWrist.setHoldPow(-0.01);
+                horizontalWrist.setPower(0.1);
+            }
+                //If A is pressed bucket moves down, if b is pressed bucket moves up
+            if (controller2.getButton(Controller.Key.B)) { verticalBucket.setPower(-0.5); }
+            else if (controller2.getButton(Controller.Key.A)) { verticalBucket.setPower(0.5); }
+            else { verticalBucket.setPower(0); }
+
+
+            /*if (verticalBucket.getCurrentPosition() != verticalBucket.getTarget()) {
+                verticalBucket.moveToTarget(0.5, 0.1, true);
+            }*/
 
                 /*//Drives the climber motor
             if (controller2.getButton(Controller.Key.X)) { climberMotor.setPower(1.0); }
@@ -258,7 +262,10 @@ public class TheDeep extends LinearOpMode {
             packet.put("Lift Pos", verticalArmMotor.getCurrentPosition());
             packet.put("Arm Pos", horizontalArmMotor.getCurrentPosition());
             packet.put("Bucket Pos", verticalBucket.getCurrentPosition());
+            packet.put("Bucket Target", verticalBucket.getTarget());
             packet.put("Wrist Pos", horizontalWrist.getCurrentPosition());
+
+            packet.put("Use Lift PID", useLiftPID);
 
             /*packet.put("Right Stick Angle", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
             packet.put("Right Stick length", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getLength());

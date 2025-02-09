@@ -19,14 +19,14 @@ public class Vector extends Angle {
      * @param x
      * @param y*/
     public Vector(double x, double y) {
-        super((float) ((y < 0.0) ? Math.PI - Math.atan(x / y) : (y == 0.0) ? (x > 0) ? 0 : Math.PI : Math.atan(x / y)));
+        super((float) (Geometry.atan(new Point(y, x)).getRadian()));
         this.length = Geometry.pythagorean(x, y);
     }
 
     /**Stores an length, theta vector.
      * @param point Point at the end of the vector.*/
     public Vector(Point point) {
-        super((float) ((point.y < 0.0) ? Math.PI - Math.atan(point.x / point.y) : (point.y == 0) ? (point.x > 0) ? 0 : Math.PI : Math.atan(point.x / point.y)));
+        super((float) (Geometry.atan(Geometry.reverse(point)).getRadian()));
         this.length = Geometry.pythagorean(point.x, point.y);
     }
 
@@ -37,9 +37,8 @@ public class Vector extends Angle {
 
     /**@param point Point at the end of the vector.*/
     public void setPoint(Point point) {
-        double radian = Math.atan(point.x / point.y);
-        if (point.y < 0.0) { radian = Math.PI - radian; }
-        super.setRadian(radian);
+        Angle radian = Geometry.atan(Geometry.reverse(point));
+        super.setDegree(radian.getDegree());
         this.length = Geometry.pythagorean(point.x, point.y);
     }
 

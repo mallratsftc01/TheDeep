@@ -8,6 +8,8 @@ public class Geometry {
     public static final Vector I_HAT = new Vector(1, new Angle(0.0));
     /**A unit vector pointing upwards.*/
     public static final Vector J_HAT = new Vector(1, new Angle(90.0));
+    /**Represents a angle of Pi radians or 180 degrees*/
+    public static final Angle PI = new Angle((float)Math.PI);
 
     public Geometry() {}
 
@@ -26,6 +28,7 @@ public class Geometry {
         for (Angle a : angle) { degrees += a.getDegree(); }
         return new Angle(degrees % 360.0);
     }
+
     /**@param angle An angle.
      * @return The trigonometric sine value of an angle.*/
     public static double sin(Angle angle) { return Math.sin(angle.getRadian()); }
@@ -86,6 +89,12 @@ public class Geometry {
         }
         return new Point(x, y);
     }
+
+    /**Flips the x and y of a point
+     * @param p A point
+     * @return The reversed point*/
+    public static Point reverse (Point p) { return new Point(p.y, p.x); }
+
     /**@param point A point.
      * @param angle An angle.
        @return The point rotated by the angle about the origin.*/
