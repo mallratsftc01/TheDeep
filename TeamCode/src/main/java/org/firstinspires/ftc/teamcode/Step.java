@@ -23,8 +23,9 @@ public class Step {
     public double lift_max;
     public double lift_tolerance;
 
-    public boolean use_intake;
-    public double bucket_pos;
+    public boolean claw_open;
+    public boolean wrist_down;
+    public int bucket_pos;
 
     public long millis;
 

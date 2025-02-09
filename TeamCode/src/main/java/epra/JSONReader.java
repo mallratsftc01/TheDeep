@@ -30,7 +30,7 @@ public class JSONReader {
         File file = AppUtil.getInstance().getSettingsFile(fileName);
         try (FileReader reader = new FileReader(file)) {
             directions = gson.fromJson(reader, stepListType);
-        } catch (Exception e) { return new Step[0]; }
+        } catch (Exception e) { return new Step[1]; }
         Step[] r = new Step[directions.size()];
         for (int i = 0; i < r.length; i++) {
             r[i] = directions.get(i);

@@ -1,15 +1,23 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import epra.Controller;
 import epra.IMUExpanded;
@@ -26,8 +34,8 @@ public class AutoBase extends LinearOpMode {
 
     private final long LOOP_TIME = 27 * 1000;
 
-    private final String JSON_FILE_NAME = "json/auto/left_blue.json";
-    private final String END_JSON_FILE_NAME = "json/drive/end";
+    private final String JSON_FILE_NAME = "json/auto/right.json";
+    private final String END_JSON_FILE_NAME = "json/drive/end_right";
 
     private MotorController northEastMotor;
     private MotorController southEastMotor;
@@ -37,12 +45,9 @@ public class AutoBase extends LinearOpMode {
     private MotorController horizontalArmMotor;
     private MotorController verticalArmMotor;
 
-    private CRServo horizontalClaw;
+    private Servo horizontalClaw;
     private MotorController horizontalWrist;
-    private Servo verticalBucket;
-
-    private Controller controller1;
-    private Controller controller2;
+    private MotorController verticalBucket;
 
     private IMU imu1;
     private IMU imu2;
@@ -77,13 +82,11 @@ public class AutoBase extends LinearOpMode {
         verticalArmMotor.tuneTargetPID(0.0023, 0.0, 0.9);
         verticalArmMotor.setHoldPow(0.00002);
 
-        horizontalClaw = hardwareMap.get(CRServo.class, "horizontalClaw");
+        horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
         DcMotorExFrame wMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalWrist"));
         horizontalWrist = new MotorController(wMotor);
-        verticalBucket = hardwareMap.get(Servo.class, "verticalClaw");
-
-        controller1 = new Controller (gamepad1, 0.05F);
-        controller2 = new Controller (gamepad2, 0.05F);
+        verticalBucket = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "bucketMotor")));
+        verticalBucket.tuneTargetPID(0.2, 0, 15.5);
 
         DriveTrain drive = new DriveTrain(new String[] {"north_west_motor", "north_east_motor", "south_west_motor", "south_east_motor"}, new MotorController[] {northWestMotor, northEastMotor, southWestMotor, southEastMotor}, new DriveTrain.Orientation[] {DriveTrain.Orientation.LEFT_FRONT, DriveTrain.Orientation.RIGHT_FRONT, DriveTrain.Orientation.LEFT_BACK, DriveTrain.Orientation.RIGHT_BACK}, DriveTrain.DriveType.MECANUM);
         drive.tuneAnglePID(1, 0.00025, 270);
@@ -103,8 +106,19 @@ public class AutoBase extends LinearOpMode {
         filenames = new ArrayList<>();
         steps = new ArrayList<>();
         filenames.addAll(Arrays.asList(JSONReader.readAuto(JSON_FILE_NAME)));
+        /*//TEST CODE
+        File file = AppUtil.getInstance().getSettingsFile(filenames.get(0));
+        Gson gson = new Gson();
+        Type stepListType = new TypeToken<List<Step>>() {}.getType();
+        List<Step> directions;
+        FileReader reader = null;
+        try {
+            reader = new FileReader(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        directions = gson.fromJson(reader, stepListType);*/
         steps.addAll(Arrays.asList(JSONReader.readSteps(filenames.get(0))));
-
 
         odometry = new Odometry(northWestMotor, southWestMotor, northEastMotor,
                 new Point(7.92784216, 3.75),
@@ -132,15 +146,25 @@ public class AutoBase extends LinearOpMode {
 
             verticalArmMotor.setTarget((int) steps.get(0).lift_target);
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
-            horizontalClaw.setPower(0.0);
-            horizontalWrist.setPower(-0.3);
-            if (steps.get(0).use_intake && verticalArmMotor.getCurrentPosition() > 500) {
-                horizontalWrist.setPower(0.1);
-                horizontalClaw.setPower(-1.0);
+
+            horizontalClaw.setPosition(0.0);
+            horizontalWrist.setTarget(-30);
+            if (steps.get(0).claw_open && horizontalWrist.getCurrentPosition() > -30) {
+                horizontalClaw.setPosition(1.0);
             }
-            double bucketPos = steps.get(0).bucket_pos;
-            if (verticalArmMotor.getCurrentPosition() > 100 && bucketPos > 0.5) { bucketPos = 0.5; }
-            verticalBucket.setPosition(bucketPos);
+
+            if (steps.get(0).wrist_down) {
+                if (horizontalWrist.getCurrentPosition() > -30) {
+                    horizontalWrist.moveToTarget(0.5, 0.1, true);
+                }
+                horizontalWrist.setHoldPow(0.001);
+            } else {
+                horizontalWrist.setHoldPow(-0.01);
+                horizontalWrist.setPower(0.1);
+            }
+
+            verticalBucket.setTarget(steps.get(0).bucket_pos);
+            verticalBucket.moveToTarget(0.5, 0.1, true);
 
             drive.setTargetPose(steps.get(0).getPose());
             boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
@@ -168,7 +192,7 @@ public class AutoBase extends LinearOpMode {
             }
 
             //fail safe if it stalls
-            if (steps.get(0).millis == 0.0 && (System.currentTimeMillis() - saveTime) >= 1000.0) {
+            if (steps.get(0).millis == 0.0 && (System.currentTimeMillis() - saveTime) >= 10000.0) {
                 steps.remove(0);
                 saveTime = System.currentTimeMillis();
             }
@@ -184,15 +208,25 @@ public class AutoBase extends LinearOpMode {
 
             verticalArmMotor.setTarget((int) steps.get(0).lift_target);
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
-            horizontalClaw.setPower(0.0);
-            horizontalWrist.setPower(-0.3);
-            if (steps.get(0).use_intake && verticalArmMotor.getCurrentPosition() > 500) {
-                horizontalWrist.setPower(0.1);
-                horizontalClaw.setPower(-1.0);
+
+            horizontalClaw.setPosition(0.0);
+            horizontalWrist.setTarget(-30);
+            if (steps.get(0).claw_open && horizontalWrist.getCurrentPosition() > -30) {
+                horizontalClaw.setPosition(1.0);
             }
-            double bucketPos = steps.get(0).bucket_pos;
-            if (verticalArmMotor.getCurrentPosition() > 100 && bucketPos > 0.5) { bucketPos = 0.5; }
-            verticalBucket.setPosition(bucketPos);
+
+            if (steps.get(0).wrist_down) {
+                if (horizontalWrist.getCurrentPosition() > -30) {
+                    horizontalWrist.moveToTarget(0.5, 0.1, true);
+                }
+                horizontalWrist.setHoldPow(0.001);
+            } else {
+                horizontalWrist.setHoldPow(-0.01);
+                horizontalWrist.setPower(0.1);
+            }
+
+            verticalBucket.setTarget(steps.get(0).bucket_pos);
+            verticalBucket.moveToTarget(0.5, 0.1, true);
 
             drive.setTargetPose(steps.get(0).getPose());
             boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
