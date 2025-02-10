@@ -1,6 +1,5 @@
 package epra.location;
 
-import epra.IMUExpanded;
 import epra.math.geometry.Angle;
 import epra.math.geometry.Geometry;
 import epra.math.geometry.Point;
@@ -10,9 +9,7 @@ import epra.math.statistics.RollingAverage;
 import epra.movement.MotorController;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

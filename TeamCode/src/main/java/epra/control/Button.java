@@ -1,4 +1,4 @@
-package epra;
+package epra.control;
 
 /**A storage class for button or analog data.
  * <p></p>

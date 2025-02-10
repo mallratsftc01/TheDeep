@@ -1,6 +1,6 @@
 package epra.storage;
 
-import epra.IMUExpanded;
+import epra.location.IMUExpanded;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 

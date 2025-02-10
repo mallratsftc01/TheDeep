@@ -1,4 +1,4 @@
-package epra;
+package epra.location;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.IMU;

@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-import epra.Controller;
+import epra.control.Controller;
 import epra.movement.DriveTrain;
-import epra.IMUExpanded;
+import epra.location.IMUExpanded;
 import epra.movement.Motor;
 import epra.movement.MotorController;
 import epra.movement.DcMotorExFrame;
@@ -14,16 +14,12 @@ import epra.movement.PIDTuner;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import java.util.ArrayList;
 
 
 @TeleOp

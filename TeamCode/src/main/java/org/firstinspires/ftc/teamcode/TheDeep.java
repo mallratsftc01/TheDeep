@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import epra.Controller;
+import epra.control.Controller;
 import epra.math.geometry.Geometry;
 import epra.math.geometry.Vector;
 import epra.movement.DriveTrain;
-import epra.IMUExpanded;
+import epra.location.IMUExpanded;
 import epra.movement.Motor;
 import epra.movement.MotorController;
 import epra.movement.DcMotorExFrame;
@@ -20,7 +20,6 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 

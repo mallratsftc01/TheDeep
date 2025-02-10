@@ -1,4 +1,4 @@
-package epra;
+package epra.location;
 
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;

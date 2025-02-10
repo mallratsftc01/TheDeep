@@ -1,17 +1,14 @@
-package epra;
+package epra.control;
 
 import com.google.gson.Gson;
-import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Step;
-import org.json.JSONArray;
 
 import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 /**A class to read json files for auto.

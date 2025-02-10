@@ -1,4 +1,4 @@
-package epra.pipelines;
+package epra.camera.pipeline;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;

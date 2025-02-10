@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import epra.IMUExpanded;
+import epra.location.IMUExpanded;
 import epra.math.geometry.Angle;
 import epra.math.geometry.Geometry;
 import epra.math.geometry.Vector;

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -9,19 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import epra.Controller;
-import epra.IMUExpanded;
-import epra.JSONReader;
+import epra.location.IMUExpanded;
+import epra.control.JSONReader;
 import epra.location.Odometry;
 import epra.math.geometry.Point;
 import epra.movement.DcMotorExFrame;
