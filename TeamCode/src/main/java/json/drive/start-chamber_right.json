@@ -33,7 +33,7 @@
     "arm_max": 0.0,
     "arm_tolerance": 0.0,
 
-    "lift_target": 2000.0,
+    "lift_target": 0.0,
     "lift_max": 1.0,
     "lift_tolerance": 1.0,
 

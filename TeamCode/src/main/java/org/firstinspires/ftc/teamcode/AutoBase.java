@@ -148,6 +148,9 @@ public class AutoBase extends LinearOpMode {
             verticalArmMotor.setTarget((int) steps.get(0).lift_target);
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
 
+            verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance,true);
+            horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, true);
+
             horizontalClaw.setPosition(0.0);
             horizontalWrist.setTarget(-30);
             if (steps.get(0).claw_open && horizontalWrist.getCurrentPosition() > -30) {
@@ -185,8 +188,8 @@ public class AutoBase extends LinearOpMode {
             tickTime = s;
 
             if (atPose
-                    && (verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance,steps.size() == 1) || Math.abs(verticalArmMotor.getCurrentPosition() - steps.get(0).lift_target) <= 50)
-                    && horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, steps.size() == 1)
+                    && verticalArmMotor.checkTarget(25)
+                    && horizontalArmMotor.checkTarget(25)
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
                 saveTime = System.currentTimeMillis();
@@ -212,6 +215,9 @@ public class AutoBase extends LinearOpMode {
             verticalArmMotor.setTarget((int) steps.get(0).lift_target);
             horizontalArmMotor.setTarget((int) steps.get(0).arm_target);
 
+            verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance,steps.size() == 1);
+            horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, steps.size() == 1);
+
             horizontalClaw.setPosition(0.0);
             horizontalWrist.setTarget(-30);
             if (steps.get(0).claw_open && horizontalWrist.getCurrentPosition() > -30) {
@@ -235,11 +241,12 @@ public class AutoBase extends LinearOpMode {
             boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
 
             if (atPose
-                    && (verticalArmMotor.moveToTarget(steps.get(0).lift_max, steps.get(0).lift_tolerance,steps.size() == 1) || Math.abs(verticalArmMotor.getCurrentPosition() - steps.get(0).lift_target) <= 25)
-                    && horizontalArmMotor.moveToTarget(steps.get(0).arm_max, steps.get(0).arm_tolerance, steps.size() == 1)
+                    && verticalArmMotor.checkTarget(25)
+                    && horizontalArmMotor.checkTarget(25)
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
                 saveTime = System.currentTimeMillis();
+                telemetry.update();
                 continue;
             }
 

@@ -79,6 +79,13 @@ public class MotorController {
     /**Returns the current target position of the motor.
      * @return The target position of the motor.*/
     public int getTarget() { return targetPosition; }
+    /**Checks if the position has passed through the target since the last time this method was called.
+     * @param range A range around the target where the target will be considered met in motor-specific ticks.
+     * @return If the position has passed through the target.*/
+    public boolean checkTarget(int range) {
+        log();
+        return (Math.max(getCurrentPosition(), savePos) > targetPosition && Math.min(getCurrentPosition(), savePos) < targetPosition) || Math.abs(getCurrentPosition() - targetPosition) > range;
+    }
     /**Moves the motor towards the set target.
      * @param maxPower The absolute max power the motor can reach as a double between 0.0 and 1.0.
      * @param tolerance The tolerance for reaching the target as a double between 0.0 and 1.0. If this is set to 0.0 the pid will run indefinitely.
