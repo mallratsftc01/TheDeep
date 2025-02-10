@@ -8,8 +8,10 @@ public class Geometry {
     public static final Vector I_HAT = new Vector(1, new Angle(0.0));
     /**A unit vector pointing upwards.*/
     public static final Vector J_HAT = new Vector(1, new Angle(90.0));
-    /**Represents a angle of Pi radians or 180 degrees*/
+    /**Represents an angle of pi radians or 180.0 degrees.*/
     public static final Angle PI = new Angle((float)Math.PI);
+    /**Represents an angle of 1.0 radian or ~57.296 degrees.*/
+    public static final Angle RAD = new Angle(1.0f);
 
     public Geometry() {}
 
@@ -26,6 +28,7 @@ public class Geometry {
     public static Angle average(Angle[] angle) {
         double degrees = 0.0;
         for (Angle a : angle) { degrees += a.getDegree(); }
+        degrees /= angle.length;
         return new Angle(degrees % 360.0);
     }
 
@@ -58,7 +61,7 @@ public class Geometry {
     public static Angle atan(double a) { return new Angle((float) Math.atan(a)); }
     /**Finds the angle of a vector from a point to (0,0). If the point is (0,0), will return an angle of 0.
      * @param p The point whose arc tangent is to be returned.
-     * @return The arc tangent of a value; the returned angle is in the range -pi/2 to pi/2.*/
+     * @return The arc tangent of a value; the returned angle is in the range 0.0 to 2pi.*/
     public static Angle atan(Point p) {
         return new Angle (
                 (float) switch (p.quadrant()) {
@@ -87,6 +90,8 @@ public class Geometry {
             x += p.x;
             y += p.y;
         }
+        x /= point.length;
+        y /= point.length;
         return new Point(x, y);
     }
 
@@ -94,7 +99,6 @@ public class Geometry {
      * @param p A point
      * @return The reversed point*/
     public static Point reverse (Point p) { return new Point(p.y, p.x); }
-
     /**@param point A point.
      * @param angle An angle.
        @return The point rotated by the angle about the origin.*/
