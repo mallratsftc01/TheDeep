@@ -140,49 +140,64 @@ public class TheDeep extends LinearOpMode {
 
             //Driver Controller
 
-                //Toggles between normal drive, field oriented drive, and angle correcting field oriented drive
+            //Toggles between normal drive, field oriented drive, and angle correcting field oriented drive
             if (controller1.getButton(Controller.Key.BUMPER_LEFT) && controller1.buttonSingle(Controller.Key.STICK_LEFT)) {
                 if (!fodFlag) {
                     fieldOrientedDrive = !fieldOrientedDrive;
                     fodFlag = true;
                 }
-            } else { fodFlag = false; }
+            } else {
+                fodFlag = false;
+            }
             if (controller1.getButton(Controller.Key.BUMPER_RIGHT) && controller1.buttonSingle(Controller.Key.STICK_RIGHT)) {
                 if (!acfodFlag) {
                     angleCorrectionFOD = !angleCorrectionFOD;
                     acfodFlag = true;
-                } else { acfodFlag = false; }
+                } else {
+                    acfodFlag = false;
+                }
             }
-            if (!fieldOrientedDrive) { angleCorrectionFOD = false; }
+            if (!fieldOrientedDrive) {
+                angleCorrectionFOD = false;
+            }
 
-                //Lowers the speeds when the joysticks are pressed
+            //Lowers the speeds when the joysticks are pressed
             Vector drivePow = Geometry.scale(controller1.analogDeadband(Controller.Stick.LEFT_STICK), (controller1.getButton(Controller.Key.STICK_LEFT) ? 0.5 : 1.0));
             float turnPow = controller1.analogDeadband(Controller.Key.RIGHT_STICK_X) * (controller1.getButton(Controller.Key.STICK_RIGHT) ? 0.5f : 1.0f);
 
-                //Uses the correct drive method
-            if (angleCorrectionFOD) { drive.fieldOrientedMecanumDrive(controller1.analogDeadband(Controller.Stick.RIGHT_STICK), drivePow, imuX.getYaw(), 0.1, true); }
-            else if (fieldOrientedDrive) { drive.fieldOrientedMecanumDrive(turnPow, drivePow, imuX.getYaw()); }
-            else { drive.mecanumDrive(turnPow, drivePow); }
+            //Uses the correct drive method
+            if (angleCorrectionFOD) {
+                drive.fieldOrientedMecanumDrive(controller1.analogDeadband(Controller.Stick.RIGHT_STICK), drivePow, imuX.getYaw(), 0.1, true);
+            } else if (fieldOrientedDrive) {
+                drive.fieldOrientedMecanumDrive(turnPow, drivePow, imuX.getYaw());
+            } else {
+                drive.mecanumDrive(turnPow, drivePow);
+            }
 
             //Operator Controller
 
-                //Sets targets for the lid PID
-            if (controller2.analogDeadband(Controller.Key.LEFT_STICK_Y) != 0.0) { useLiftPID = false; }
-            boolean[] dpad = {controller2.getButton(Controller.Key.UP), controller2.getButton(Controller.Key.LEFT), controller2.getButton(Controller.Key.RIGHT), controller2.getButton(Controller.Key.DOWN)};
+            //Sets targets for the lid PID
+            if (controller2.analogDeadband(Controller.Key.LEFT_STICK_Y) != 0.0) {
+                useLiftPID = false;
+            }
+            /*boolean[] dpad = {controller2.getButton(Controller.Key.UP), controller2.getButton(Controller.Key.LEFT), controller2.getButton(Controller.Key.RIGHT), controller2.getButton(Controller.Key.DOWN)};
             if (dpad[0] || dpad[1] || dpad[2] || dpad[3]) { useLiftPID = true; }
             if (dpad[0]) { verticalArmMotor.setTarget(3600); }
             else if (dpad[1]) { verticalArmMotor.setTarget(2000); }
             else if (dpad[2]) { verticalArmMotor.setTarget(1600); }
-            else if (dpad[3]) { verticalArmMotor.setTarget(0); }
+            else if (dpad[3]) { verticalArmMotor.setTarget(0); }*/
 
-                //Drives the lift via PID or joystick only if the arm is retracted
+            //Drives the lift via PID or joystick only if the arm is retracted
             if (horizontalArmMotor.getCurrentPosition() > -100) {
                 double maxPow = (controller2.getButton(Controller.Key.STICK_LEFT)) ? -0.5 : -1.0;
-                if (useLiftPID) { verticalArmMotor.moveToTarget(maxPow, 0.001, true); }
-                else { verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y) * maxPow); }
+                if (useLiftPID) {
+                    verticalArmMotor.moveToTarget(maxPow, 0.001, true);
+                } else {
+                    verticalArmMotor.setPower(controller2.analogDeadband(Controller.Key.LEFT_STICK_Y) * maxPow);
+                }
             }
 
-                //Drives the arm via joystick only if the lift is retracted
+            //Drives the arm via joystick only if the lift is retracted
             if (verticalArmMotor.getCurrentPosition() < 100) {
                 double maxPow = (controller2.getButton(Controller.Key.STICK_RIGHT)) ? 0.5 : 1.0;
                 horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y) * maxPow);
@@ -197,7 +212,7 @@ public class TheDeep extends LinearOpMode {
                 }
             }*/
 
-                //Zeros the motors if the corresponding bumper and stick are clicked
+            //Zeros the motors if the corresponding bumper and stick are clicked
             if (controller2.getButton(Controller.Key.BUMPER_LEFT) && controller2.getButton(Controller.Key.STICK_LEFT)) {
                 verticalArmMotor.zero();
             }
@@ -205,22 +220,21 @@ public class TheDeep extends LinearOpMode {
                 horizontalArmMotor.zero();
             }
 
-                //If x is pressed the claw is opened/closed
+            //If x is pressed the claw is opened/closed
             horizontalClaw.setPosition(0.0);
             horizontalWrist.setTarget(-30);
-            if (controller2.buttonToggleSingle(Controller.Key.X) && horizontalWrist.getCurrentPosition() > -30) {
+            if (controller2.buttonToggleSingle(Controller.Key.X)) {
                 horizontalClaw.setPosition(1.0);
             }
 
-                //if y is pressed the claw goes down/up
-            if (controller2.buttonToggleSingle(Controller.Key.Y)) {
-                if (horizontalWrist.getCurrentPosition() > -30) {
-                    horizontalWrist.moveToTarget(0.5, 0.1, true);
-                }
-                horizontalWrist.setHoldPow(0.001);
+            //dpad controls the wrist
+            horizontalWrist.setPower((controller2.getButton(Controller.Key.DOWN) ? 0.5 : 0.0) - (controller2.getButton(Controller.Key.UP) ? 0.5 : 0.0));
+            if (controller2.getButton(Controller.Key.DOWN) || controller2.getButton(Controller.Key.UP)) {
+                horizontalWrist.setHoldPow(0.0);
+            } else if (horizontalWrist.getCurrentPosition() > 0.0) {
+                horizontalWrist.setHoldPow(-0.0005);
             } else {
-                horizontalWrist.setHoldPow(-0.01);
-                horizontalWrist.setPower(0.1);
+                horizontalWrist.setHoldPow(0.0005);
             }
                 //If A is pressed bucket moves down, if b is pressed bucket moves up
             if (controller2.getButton(Controller.Key.B)) { verticalBucket.setPower(-0.5); }
