@@ -24,8 +24,8 @@ public class AutoBase extends LinearOpMode {
 
     private final long LOOP_TIME = 27 * 1000;
 
-    private final String JSON_FILE_NAME = "json/auto/left.json";
-    private final String END_JSON_FILE_NAME = "json/drive/end_left.json";
+    private final String JSON_FILE_NAME = "json/auto/right.json";
+    private final String END_JSON_FILE_NAME = "json/drive/end_right.json";
 
     private MotorController northEastMotor;
     private MotorController southEastMotor;
@@ -69,7 +69,7 @@ public class AutoBase extends LinearOpMode {
         horizontalArmMotor = new MotorController(haMotor);
         horizontalArmMotor.tuneTargetPID(0.005, 0, 0.9);
         verticalArmMotor = new MotorController(vaMotor);
-        verticalArmMotor.tuneTargetPID(0.0023, 0.0, 0.9);
+        verticalArmMotor.tuneTargetPID(0.005, 0.0, 0.5);
         verticalArmMotor.setHoldPow(0.00002);
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
@@ -122,6 +122,10 @@ public class AutoBase extends LinearOpMode {
 
         filenames.remove(0);
 
+        boolean armCheck = false;
+        boolean liftCheck = false;
+        boolean poseCheck = false;
+
         waitForStart();
         long startTime = System.currentTimeMillis();
         long saveTime = startTime;
@@ -160,14 +164,19 @@ public class AutoBase extends LinearOpMode {
             verticalBucket.setTarget(steps.get(0).bucket_pos);
             verticalBucket.moveToTarget(0.5, 0.1, true);
 
+            if (verticalArmMotor.checkTarget(100) || steps.get(0).lift_tolerance == 1.0) { liftCheck = true; }
+            if (horizontalArmMotor.checkTarget(25) || steps.get(0).arm_tolerance == 1.0) { armCheck = true; }
+
             drive.setTargetPose(steps.get(0).getPose());
-            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
+            poseCheck = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
 
             long s = System.currentTimeMillis();
             telemetry.addData("ms/t", s - tickTime);
             telemetry.addData("Paths Remaining: ", filenames.size());
             telemetry.addData("Steps Remaining in Path: ", steps.size());
-            telemetry.addData("At Pose: ", atPose);
+            telemetry.addData("Pose Check: ", poseCheck);
+            telemetry.addData("Arm Check: ", armCheck);
+            telemetry.addData("Lift Check: ", liftCheck);
             telemetry.addData("X Pose: ", odometry.getPose().point.x);
             telemetry.addData("Y Pose: ", odometry.getPose().point.y);
             telemetry.addData("Arm Pos: ", horizontalArmMotor.getCurrentPosition());
@@ -177,12 +186,15 @@ public class AutoBase extends LinearOpMode {
             telemetry.addData("Lift Target: ", steps.get(0).lift_target);
             tickTime = s;
 
-            if (atPose
-                    && verticalArmMotor.checkTarget(25)
-                    && horizontalArmMotor.checkTarget(25)
+            if (poseCheck
+                    && armCheck
+                    && liftCheck
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
                 saveTime = System.currentTimeMillis();
+                armCheck = false;
+                liftCheck = false;
+                poseCheck = false;
                 telemetry.update();
                 continue;
             }
@@ -227,14 +239,20 @@ public class AutoBase extends LinearOpMode {
             verticalBucket.setTarget(steps.get(0).bucket_pos);
             verticalBucket.moveToTarget(0.5, 0.1, true);
 
-            drive.setTargetPose(steps.get(0).getPose());
-            boolean atPose = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
+            if (verticalArmMotor.checkTarget(100) || steps.get(0).lift_tolerance == 1.0) { liftCheck = true; }
+            if (horizontalArmMotor.checkTarget(25) || steps.get(0).arm_tolerance == 1.0) { armCheck = true; }
 
-            if (atPose
-                    && verticalArmMotor.checkTarget(25)
-                    && horizontalArmMotor.checkTarget(25)
+            drive.setTargetPose(steps.get(0).getPose());
+            poseCheck = drive.posPIDMecanumDrive(odometry.getPose(), steps.get(0).pos_tolerance, steps.get(0).angle_tolerance, steps.get(0).drive_max, true);
+
+            if (poseCheck
+                    && armCheck
+                    && liftCheck
                     && System.currentTimeMillis() - saveTime >= steps.get(0).millis) {
                 steps.remove(0);
+                armCheck = false;
+                liftCheck = false;
+                poseCheck = false;
                 saveTime = System.currentTimeMillis();
                 telemetry.update();
                 continue;

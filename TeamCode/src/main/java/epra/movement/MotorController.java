@@ -84,7 +84,7 @@ public class MotorController {
      * @return If the position has passed through the target.*/
     public boolean checkTarget(int range) {
         log();
-        return (Math.max(getCurrentPosition(), savePos) > targetPosition && Math.min(getCurrentPosition(), savePos) < targetPosition) || Math.abs(getCurrentPosition() - targetPosition) > range;
+        return (Math.max(getCurrentPosition(), savePos) > targetPosition && Math.min(getCurrentPosition(), savePos) < targetPosition) || Math.abs(getCurrentPosition() - targetPosition) < range;
     }
     /**Moves the motor towards the set target.
      * @param maxPower The absolute max power the motor can reach as a double between 0.0 and 1.0.

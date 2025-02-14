@@ -57,7 +57,7 @@
 
     "lift_target": 0.0,
     "lift_max": 1.0,
-    "lift_tolerance": 0.001,
+    "lift_tolerance": 0.00025,
 
     "claw_open": false,
     "wrist_down": false,
@@ -77,7 +77,7 @@
     "arm_max": 0.0,
     "arm_tolerance": 0.0,
 
-    "lift_target": 700.0,
+    "lift_target": 0.0,
     "lift_max": 1.0,
     "lift_tolerance": 1.0,
 
