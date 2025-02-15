@@ -55,9 +55,9 @@
         "arm_max": 0.0,
         "arm_tolerance": 0.0,
 
-        "lift_target": 2000.0,
-        "lift_max": 0.5,
-        "lift_tolerance": 0.001,
+        "lift_target": 1800.0,
+        "lift_max": 1.0,
+        "lift_tolerance": 0.00025,
 
         "claw_open": false,
         "wrist_down": false,
@@ -67,17 +67,17 @@
     },
     {
         "x": 4.0,
-        "y": 35.0,
+        "y": 34.0,
         "theta": 180.0,
-        "pos_tolerance": 0.25,
-        "angle_tolerance": 0.5,
+        "pos_tolerance": 0.1,
+        "angle_tolerance": 0.25,
         "drive_max": 0.5,
 
         "arm_target": 0.0,
         "arm_max": 0.0,
         "arm_tolerance": 0.0,
 
-        "lift_target": 2000.0,
+        "lift_target": 1800.0,
         "lift_max": 1.0,
         "lift_tolerance": 0.5,
 
@@ -89,7 +89,51 @@
     },
     {
         "x": 4.0,
-        "y": 35.0,
+        "y": 34.0,
+        "theta": 180.0,
+        "pos_tolerance": 1.0,
+        "angle_tolerance": 0.99,
+        "drive_max": 0.5,
+
+        "arm_target": 0.0,
+        "arm_max": 0.0,
+        "arm_tolerance": 0.0,
+
+        "lift_target": 700.0,
+        "lift_max": 1.0,
+        "lift_tolerance": 0.00025,
+
+        "claw_open": false,
+        "wrist_down": false,
+        "bucket_pos": -175,
+
+        "millis": 0
+    },
+    {
+        "x": 4.0,
+        "y": 34.0,
+        "theta": 180.0,
+        "pos_tolerance": 1.0,
+        "angle_tolerance": 0.99,
+        "drive_max": 0.5,
+
+        "arm_target": 0.0,
+        "arm_max": 0.0,
+        "arm_tolerance": 0.0,
+
+        "lift_target": 1200.0,
+        "lift_max": 1.0,
+        "lift_tolerance": 0.00025,
+
+        "claw_open": false,
+        "wrist_down": false,
+        "bucket_pos": -175,
+
+        "millis": 0
+    },
+    {
+        "x": 4.0,
+        "y": 34.0,
         "theta": 180.0,
         "pos_tolerance": 1.0,
         "angle_tolerance": 0.99,
@@ -101,51 +145,7 @@
 
         "lift_target": 800.0,
         "lift_max": 1.0,
-        "lift_tolerance": 0.001,
-
-        "claw_open": false,
-        "wrist_down": false,
-        "bucket_pos": -175,
-
-        "millis": 0
-    },
-    {
-        "x": 4.0,
-        "y": 35.0,
-        "theta": 180.0,
-        "pos_tolerance": 1.0,
-        "angle_tolerance": 0.99,
-        "drive_max": 0.5,
-
-        "arm_target": 0.0,
-        "arm_max": 0.0,
-        "arm_tolerance": 0.0,
-
-        "lift_target": 1500.0,
-        "lift_max": 1.0,
-        "lift_tolerance": 0.001,
-
-        "claw_open": false,
-        "wrist_down": false,
-        "bucket_pos": -175,
-
-        "millis": 0
-    },
-    {
-        "x": 4.0,
-        "y": 35.0,
-        "theta": 180.0,
-        "pos_tolerance": 1.0,
-        "angle_tolerance": 0.99,
-        "drive_max": 0.5,
-
-        "arm_target": 0.0,
-        "arm_max": 0.0,
-        "arm_tolerance": 0.0,
-
-        "lift_target": 800.0,
-        "lift_max": 1.0,
-        "lift_tolerance": 0.001,
+        "lift_tolerance": 0.00025,
 
         "claw_open": false,
         "wrist_down": false,

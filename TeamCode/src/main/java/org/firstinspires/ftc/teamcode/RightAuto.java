@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import epra.location.IMUExpanded;
 import epra.control.JSONReader;
+import epra.location.IMUExpanded;
 import epra.location.Odometry;
 import epra.math.geometry.Point;
 import epra.movement.DcMotorExFrame;
@@ -20,12 +20,12 @@ import epra.movement.Motor;
 import epra.movement.MotorController;
 
 @Autonomous
-public class AutoBase extends LinearOpMode {
+public class RightAuto extends LinearOpMode {
 
     private final long LOOP_TIME = 27 * 1000;
 
-    private final String JSON_FILE_NAME = "json/auto/left.json";
-    private final String END_JSON_FILE_NAME = "json/drive/end_left.json";
+    private final String JSON_FILE_NAME = "json/auto/right.json";
+    private final String END_JSON_FILE_NAME = "json/drive/end_right.json";
 
     private MotorController northEastMotor;
     private MotorController southEastMotor;
