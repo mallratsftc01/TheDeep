@@ -188,7 +188,7 @@ public class TheDeep extends LinearOpMode {
             else if (dpad[3]) { verticalArmMotor.setTarget(0); }*/
 
             //Drives the lift via PID or joystick only if the arm is retracted
-            if (horizontalArmMotor.getCurrentPosition() > -100) {
+            if (horizontalArmMotor.getCurrentPosition() == horizontalArmMotor.getCurrentPosition()) {
                 double maxPow = (controller2.getButton(Controller.Key.STICK_LEFT)) ? -0.5 : -1.0;
                 if (useLiftPID) {
                     verticalArmMotor.moveToTarget(maxPow, 0.001, true);
@@ -198,7 +198,7 @@ public class TheDeep extends LinearOpMode {
             }
 
             //Drives the arm via joystick only if the lift is retracted
-            if (verticalArmMotor.getCurrentPosition() < 100) {
+            if (verticalArmMotor.getCurrentPosition() == verticalArmMotor.getCurrentPosition()) {
                 double maxPow = (controller2.getButton(Controller.Key.STICK_RIGHT)) ? 0.5 : 1.0;
                 horizontalArmMotor.setPower(controller2.analogDeadband(Controller.Key.RIGHT_STICK_Y) * maxPow);
             }

@@ -88,7 +88,7 @@
     "millis": 0
   },
   {
-    "x": 22.0,
+    "x": 20.5,
     "y": 10.0,
     "theta": 90.0,
     "pos_tolerance": 0.1,
@@ -102,6 +102,28 @@
     "lift_target": 1800.0,
     "lift_max": 1.0,
     "lift_tolerance": 1.0,
+
+    "claw_open": false,
+    "wrist_down": false,
+    "bucket_pos": -200,
+
+    "millis": 0
+  },
+  {
+    "x": 20.5,
+    "y": 10.0,
+    "theta": 90.0,
+    "pos_tolerance": 1.0,
+    "angle_tolerance": 0.99,
+    "drive_max": 1.0,
+
+    "arm_target": 0.0,
+    "arm_max": 0.0,
+    "arm_tolerance": 0.0,
+
+    "lift_target": 1500.0,
+    "lift_max": 0.5,
+    "lift_tolerance": 0.0005,
 
     "claw_open": false,
     "wrist_down": false,
