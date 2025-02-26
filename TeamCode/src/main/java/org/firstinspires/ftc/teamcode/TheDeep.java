@@ -133,8 +133,6 @@ public class TheDeep extends LinearOpMode {
         waitForStart();
         lastPing = System.currentTimeMillis();
         while (opModeIsActive()) {
-            controller1.update();
-            controller2.update();
 
             odometry.estimatePose();
 
