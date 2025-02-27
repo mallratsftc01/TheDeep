@@ -1,6 +1,7 @@
 package epra.math.statistics;
 
 import java.util.ArrayList;
+import java.util.function.BiFunction;
 
 /**A rolling average of values stored in a buffer.
  * <p>
@@ -18,9 +19,9 @@ public class RollingAverage {
         REVERSE_LINEAR(RollingAverage::reverseLinearBias),
         FLAT(RollingAverage::flatBias);
 
-        BiasPointer use;
+        BiFunction<Integer, Integer, Double> use;
 
-        Bias(BiasPointer pointer) { this.use = pointer; }
+        Bias(BiFunction<Integer, Integer, Double> f) { this.use = f; }
     }
 
     public enum Threshold {
@@ -134,7 +135,7 @@ public class RollingAverage {
     /**@return The weighted average value of the buffer.*/
     public double getAverage() {
         double[] set = new double[buffer.size()];
-        for (int i = 0; i < set.length; i++) { set[i] = buffer.get(i) * biasType.use.bias(set.length, i); }
+        for (int i = 0; i < set.length; i++) { set[i] = buffer.get(i) * biasType.use.apply(set.length, i); }
         return Statistics.average(set);
     }
     /**@param value A value to add to the buffer.

@@ -58,7 +58,7 @@ public class Circle implements Shape2D {
     /**@param point Point to check.
      * @return True if the point is within the circle, false if not.*/
     public boolean checkPoint(Point point) {
-        Angle angle = new Angle((float) Math.atan((point.y - center.y) / (point.x - center.x)) % (Math.PI * 2.0));
+        Angle angle = Geometry.atan(point);
         if (end.getDegree() > start.getDegree()) {
             return (Geometry.pythagorean(center, point) >= radius && angle.getDegree() >= start.getDegree() && angle.getDegree() <= end.getDegree());
         } else {

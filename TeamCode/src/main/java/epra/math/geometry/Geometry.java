@@ -13,8 +13,6 @@ public class Geometry {
     /**Represents an angle of 1.0 radian or ~57.296 degrees.*/
     public static final Angle RAD = new Angle(1.0f);
 
-    public Geometry() {}
-
     /**@param angle1 First angle.
      * @param angle2 Second angle.
      * @return The resulting angle from adding the first to the second, in a range between 0 and 360 degrees (0 to 2pi).*/
@@ -94,7 +92,6 @@ public class Geometry {
         y /= point.length;
         return new Point(x, y);
     }
-
     /**Flips the x and y of a point
      * @param p A point
      * @return The reversed point*/

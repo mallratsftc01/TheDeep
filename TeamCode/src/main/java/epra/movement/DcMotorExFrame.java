@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 /**A motor frame for DcMotorExs.
  * <p></p>
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
-public class DcMotorExFrame implements Motor{
+public class DcMotorExFrame implements Motor {
     DcMotorEx motor;
 
     /**A motor frame for DcMotorExs.
