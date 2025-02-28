@@ -31,6 +31,8 @@ public class TheDeep extends LinearOpMode {
     private MotorController southWestMotor;
     private MotorController northWestMotor;
 
+    DriveTrain drive;
+
     private MotorController horizontalArmMotor;
     private MotorController verticalArmMotor;
     //private MotorController climberMotor;
@@ -91,7 +93,7 @@ public class TheDeep extends LinearOpMode {
         controller1 = new Controller (gamepad1, 0.05F);
         controller2 = new Controller (gamepad2, 0.05F);
 
-        DriveTrain drive = new DriveTrain(new String[] {"north_west_motor", "north_east_motor", "south_west_motor", "south_east_motor"}, new MotorController[] {northWestMotor, northEastMotor, southWestMotor, southEastMotor}, new DriveTrain.Orientation[] {DriveTrain.Orientation.LEFT_FRONT, DriveTrain.Orientation.RIGHT_FRONT, DriveTrain.Orientation.LEFT_BACK, DriveTrain.Orientation.RIGHT_BACK}, DriveTrain.DriveType.MECANUM);
+        drive = new DriveTrain(new String[] {"north_west_motor", "north_east_motor", "south_west_motor", "south_east_motor"}, new MotorController[] {northWestMotor, northEastMotor, southWestMotor, southEastMotor}, new DriveTrain.Orientation[] {DriveTrain.Orientation.LEFT_FRONT, DriveTrain.Orientation.RIGHT_FRONT, DriveTrain.Orientation.LEFT_BACK, DriveTrain.Orientation.RIGHT_BACK}, DriveTrain.DriveType.MECANUM);
         drive.tuneAnglePID(1, 0.00025, 270);
         drive.tunePointPID(0.25, 0.00000001, 35);
 
@@ -119,8 +121,6 @@ public class TheDeep extends LinearOpMode {
 
         dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-        Config config = new Config();
 
         boolean fieldOrientedDrive = true;
         boolean angleCorrectionFOD = false;
@@ -251,13 +251,6 @@ public class TheDeep extends LinearOpMode {
 
 
             TelemetryPacket packet = new TelemetryPacket();
-            /*odometry.drawPose(new Quadrilateral(
-                            new Point(9.0, 9.0),
-                            new Point(-9.0, 9.0),
-                            new Point(-9.0, -9.0),
-                            new Point(9.0, -9.0)
-                    ), true
-            );*/
 
             packet.fieldOverlay()
                     .setFill("blue")
@@ -277,28 +270,6 @@ public class TheDeep extends LinearOpMode {
             packet.put("Wrist Pos", horizontalWrist.getCurrentPosition());
 
             packet.put("Use Lift PID", useLiftPID);
-
-            /*packet.put("Right Stick Angle", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
-            packet.put("Right Stick length", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getLength());
-            packet.put("Right Stick x", gamepad1.right_stick_x);
-            packet.put("Right Stick y", gamepad1.right_stick_y);*/
-
-            /*packet.put("Right Encoder", odometry.getPos(Odometry.Orientation.RIGHT));
-            packet.put("Left Encoder", odometry.getPos(Odometry.Orientation.LEFT));
-            packet.put("Perpendicular Encoder", odometry.getPos(Odometry.Orientation.PERPENDICULAR));
-
-            packet.put("Delta Right", odometry.getDelta(Odometry.Orientation.RIGHT));
-            packet.put("Delta Left", odometry.getDelta(Odometry.Orientation.LEFT));
-            packet.put("Delta Perpendicular", odometry.getDelta(Odometry.Orientation.PERPENDICULAR));
-
-            packet.put("Phi", odometry.getPhi().getDegree());
-
-            packet.put("Center Displacement", odometry.centerDisplacement());
-            packet.put("Perpendicular Displacement", odometry.perpendicularDisplacement());*/
-
-            //packet.put("Current Angle: ", imuX.getYaw().getDegree());
-            //packet.put("Target Angle: ", controller1.analogDeadband(Controller.Stick.RIGHT_STICK).getDegree());
-            //packet.put("Right Pow, direction, distance: ", Arrays.toString(drive.gyroMecanumDrive(controller1.analogDeadband(Controller.Key.LEFT_STICK_X), controller1.analogDeadband(Controller.Key.LEFT_STICK_Y), controller1.analogDeadband(Controller.Stick.RIGHT_STICK), imuX)));
             dashboard.sendTelemetryPacket(packet);
             telemetry.update();
         }
