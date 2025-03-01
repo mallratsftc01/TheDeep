@@ -58,34 +58,25 @@ public class TheDeep extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DcMotorExFrame neMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "northeastMotor"));
-        DcMotorExFrame nwMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "northwestMotor"));
-        DcMotorExFrame seMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "southeastMotor"));
-        DcMotorExFrame swMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "southwestMotor"));
-        swMotor.setDirection(Motor.Direction.REVERSE);
-        seMotor.setDirection(Motor.Direction.REVERSE);
 
-        northEastMotor = new MotorController(neMotor);
-        northWestMotor = new MotorController(nwMotor);
-        southEastMotor = new MotorController(seMotor);
-        southWestMotor = new MotorController(swMotor);
+        northEastMotor = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "northeastMotor")));
+        northWestMotor = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "northwestMotor")));
+        southEastMotor = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "southeastMotor")));
+        southWestMotor = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "southwestMotor")));
+        southWestMotor.setDirection(Motor.Direction.REVERSE);
+        southEastMotor.setDirection(Motor.Direction.REVERSE);
 
-        DcMotorExFrame haMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalMotor"));
-        DcMotorExFrame vaMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "verticalMotor"));
-        //DcMotorExFrame cMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "climberMotor"));
-        vaMotor.setDirection(Motor.Direction.REVERSE);
 
-        horizontalArmMotor = new MotorController(haMotor);
+        horizontalArmMotor = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalMotor")));
         horizontalArmMotor.tuneTargetPID(0.005, 0, 0.9);
-        verticalArmMotor = new MotorController(vaMotor);
+        verticalArmMotor = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "verticalMotor")));
         verticalArmMotor.tuneTargetPID(0.0023, 0.0, 0.9);
         verticalArmMotor.setHoldPow(0.00002);
-        //climberMotor = new MotorController(cMotor);
+        verticalArmMotor.setDirection(Motor.Direction.REVERSE);
 
         horizontalClaw = hardwareMap.get(Servo.class, "horizontalClaw");
         verticalBucket = new MotorController(new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "bucketMotor")));
         verticalBucket.tuneTargetPID(0.2, 0, 15.5);
-        //verticalBucket.setTarget(-50);
         DcMotorExFrame wMotor = new DcMotorExFrame(hardwareMap.get(DcMotorEx.class, "horizontalWrist"));
         horizontalWrist = new MotorController(wMotor);
         horizontalWrist.tuneTargetPID(0.5, 0, 0);

@@ -3,7 +3,7 @@ package epra.movement;
 /**Gives increase control over DcMotorExs.
  *<p></p>
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
-public class MotorController {
+public class MotorController implements Motor {
 
     private Motor motor;
 
@@ -37,6 +37,27 @@ public class MotorController {
         holdPow = 0.0;
     }
 
+    /**Returns whether the contained Motor is energized.*/
+    @Override
+    public boolean isEnabled() { return motor.isEnabled(); }
+    /**Energizes the Motor contained within this MotorController.*/
+    @Override
+    public void setEnabled() { motor.setEnabled(); }
+    /**De-energizes the Motor contained within this MotorController.*/
+    @Override
+    public void setDisabled() { motor.setDisabled(); }
+
+    /**Sets the logical direction in which this motor operates.
+     * @param direction The direction to set for this motor.*/
+    @Override
+    public void setDirection(Direction direction) { motor.setDirection(direction);}
+    /**Returns the current logical direction in which this motor is set as operating.
+     * @return A direction, forward or reverse.*/
+    @Override
+    public Direction getDirection() {
+        return motor.getDirection();
+    }
+
     /**Sets the motor to a certain power between -1.0 and 1.0.
      * @param power The power to set the motor to.*/
     public void setPower(double power) { motor.setPower(power + (holdPow * getCurrentPosition())); }
@@ -59,6 +80,7 @@ public class MotorController {
      * If the encoder wire for this motor is not connected to the motor (ie. it its instead connected to an odometry pod) this number will not reflect the movement of this encoder.
      * @return The current reading of the motor's encoder. */
     public int getCurrentPosition() { return motor.getCurrentPosition() - startPos; }
+
     /**Returns the recent average velocity of the motor's encoder in ticks per second.
      * These ticks are specific to the encoder of a certain motor; google the ticks/revolution for your motor for best results.
      * If the encoder wire for this motor is not connected to the motor (ie. it its instead connected to an odometry pod) this number will not reflect the movement of this encoder.
@@ -153,4 +175,11 @@ public class MotorController {
 
     /**Sets the current position of the motor to 0.*/
     public void zero() { startPos = motor.getCurrentPosition(); }
+
+    /**Returns the Motor used by this MotorController.
+     * @return A Motor.*/
+    @Override
+    public Object getSelf() {
+        return motor;
+    }
 }
