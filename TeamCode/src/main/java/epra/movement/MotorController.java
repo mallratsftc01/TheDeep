@@ -1,5 +1,7 @@
 package epra.movement;
 
+import epra.storage.MotorControllerData;
+
 /**Gives increase control over DcMotorExs.
  *<p></p>
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
@@ -65,14 +67,14 @@ public class MotorController implements Motor {
     public void stop() { motor.setPower(0.0); }
 
     /**Saves motor data to internal logs.
-     * @return The time, in milliseconds, since the last log.*/
-    public long log() {
+     * @return A MotorControllerData record with data from this log.*/
+    public MotorControllerData log() {
         int posChange = motor.getCurrentPosition() - savePos;
         long timeChange = System.currentTimeMillis() - saveTime;
         savePos += posChange;
         saveTime += timeChange;
         velocity = (double) posChange / (double) timeChange;
-        return timeChange;
+        return new MotorControllerData(saveTime, motor.toString(), motor.getPower(), savePos, targetPosition, velocity, targetVelocity);
     }
 
     /**Returns the current reading of the motor's encoder in ticks relative to the start position.
