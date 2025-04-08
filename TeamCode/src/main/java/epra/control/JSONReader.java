@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Step;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,14 +20,14 @@ public class JSONReader {
     /**Reads auto steps from a json.
      * @param fileName The filepath of the the json.
      * @return An array of auto steps.*/
-    public static Step[] readSteps(String fileName) {
-        Type stepListType = new TypeToken<List<Step>>() {}.getType();
-        List<Step> directions;
+    public static Controller.Step[] readSteps(String fileName) {
+        Type stepListType = new TypeToken<List<Controller.Step>>() {}.getType();
+        List<Controller.Step> directions;
         File file = AppUtil.getInstance().getSettingsFile(fileName);
         try (FileReader reader = new FileReader(file)) {
             directions = gson.fromJson(reader, stepListType);
-        } catch (Exception e) { return new Step[1]; }
-        Step[] r = new Step[directions.size()];
+        } catch (Exception e) { return new Controller.Step[1]; }
+        Controller.Step[] r = new Controller.Step[directions.size()];
         for (int i = 0; i < r.length; i++) {
             r[i] = directions.get(i);
         }
