@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import epra.location.Pose;
-import epra.math.geometry.Angle;
-import epra.math.geometry.Point;
+import com.epra.epralib.ftclib.location.Pose;
+import com.epra.epralib.ftclib.math.geometry.Angle;
+import com.epra.epralib.ftclib.math.geometry.Angle;
+import com.epra.epralib.ftclib.math.geometry.Point;
 /**A storage class for a single step of auto.
  * <p></p>
  * Queer Coded by Striker-909. If you use this class or a method from this class in its entirety, please make sure to give credit.*/
-public class Step {
+public class Step extends com.epra.epralib.ftclib.control.Step {
 
     public double x;
     public double y;

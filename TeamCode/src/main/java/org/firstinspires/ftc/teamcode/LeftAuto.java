@@ -10,14 +10,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import epra.control.JSONReader;
-import epra.location.IMUExpanded;
-import epra.location.Odometry;
-import epra.math.geometry.Point;
-import epra.movement.DcMotorExFrame;
-import epra.movement.DriveTrain;
-import epra.movement.Motor;
-import epra.movement.MotorController;
+import com.epra.epralib.ftclib.control.JSONReader;
+import com.epra.epralib.ftclib.location.IMUExpanded;
+import com.epra.epralib.ftclib.location.Odometry;
+import com.epra.epralib.ftclib.math.geometry.Point;
+import com.epra.epralib.ftclib.movement.DcMotorExFrame;
+import com.epra.epralib.ftclib.movement.DriveTrain;
+import com.epra.epralib.ftclib.movement.Motor;
+import com.epra.epralib.ftclib.movement.MotorController;
 
 @Autonomous
 public class LeftAuto extends LinearOpMode {
@@ -108,7 +108,7 @@ public class LeftAuto extends LinearOpMode {
             throw new RuntimeException(e);
         }
         directions = gson.fromJson(reader, stepListType);*/
-        steps.addAll(Arrays.asList(JSONReader.readSteps(filenames.get(0))));
+        steps.addAll((java.util.Collection<? extends Step>) Arrays.asList(JSONReader.readSteps(filenames.get(0))));
 
         odometry = new Odometry(northWestMotor, southWestMotor, northEastMotor,
                 new Point(7.92784216, 3.75),
@@ -134,7 +134,7 @@ public class LeftAuto extends LinearOpMode {
             odometry.estimatePose();
 
             if (steps.isEmpty()) {
-                steps.addAll(Arrays.asList(JSONReader.readSteps(filenames.get(0))));
+                steps.addAll((java.util.Collection<? extends Step>) Arrays.asList(JSONReader.readSteps(filenames.get(0))));
                 filenames.remove(0);
                 saveTime = System.currentTimeMillis();
             }
@@ -216,7 +216,7 @@ public class LeftAuto extends LinearOpMode {
             telemetry.update();
         }
 
-        steps.addAll(Arrays.asList(JSONReader.readSteps(END_JSON_FILE_NAME)));
+        steps.addAll((java.util.Collection<? extends Step>) Arrays.asList(JSONReader.readSteps(END_JSON_FILE_NAME)));
         saveTime = System.currentTimeMillis();
 
         while (System.currentTimeMillis() - startTime < 30000 && !steps.isEmpty()) {

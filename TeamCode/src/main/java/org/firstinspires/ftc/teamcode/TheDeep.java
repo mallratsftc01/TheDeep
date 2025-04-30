@@ -1,17 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
-import epra.control.Controller;
-import epra.math.geometry.Geometry;
-import epra.math.geometry.Vector;
-import epra.movement.DriveTrain;
-import epra.location.IMUExpanded;
-import epra.movement.Motor;
-import epra.movement.MotorController;
-import epra.movement.DcMotorExFrame;
-import epra.location.Odometry;
-import epra.location.Pose;
-import epra.math.geometry.Angle;
-import epra.math.geometry.Point;
+import com.epra.epralib.ftclib.control.Controller;
+import com.epra.epralib.ftclib.math.geometry.Geometry;
+import com.epra.epralib.ftclib.math.geometry.Vector;
+import com.epra.epralib.ftclib.movement.DriveTrain;
+import com.epra.epralib.ftclib.location.IMUExpanded;
+import com.epra.epralib.ftclib.movement.Motor;
+import com.epra.epralib.ftclib.movement.MotorController;
+import com.epra.epralib.ftclib.movement.DcMotorExFrame;
+import com.epra.epralib.ftclib.location.Odometry;
+import com.epra.epralib.ftclib.location.Pose;
+import com.epra.epralib.ftclib.math.geometry.Angle;
+import com.epra.epralib.ftclib.math.geometry.Point;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;

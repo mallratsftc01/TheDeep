@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import java.util.HashMap;
 import java.util.Map;
 
-import epra.location.FieldMap;
-import epra.location.Section;
-import epra.math.geometry.Point;
-import epra.math.geometry.PolyGroup;
-import epra.math.geometry.Quadrilateral;
-import epra.math.geometry.Shape2D;
-import epra.math.geometry.Triangle;
+import com.epra.epralib.ftclib.location.FieldMap;
+import com.epra.epralib.ftclib.location.Section;
+import com.epra.epralib.ftclib.math.geometry.Point;
+import com.epra.epralib.ftclib.math.geometry.PolyGroup;
+import com.epra.epralib.ftclib.math.geometry.Quadrilateral;
+import com.epra.epralib.ftclib.math.geometry.Shape2D;
+import com.epra.epralib.ftclib.math.geometry.Triangle;
 
 /**A field map of the field for the 2024-2025 season, Into the Deep.
  *<p></p>
